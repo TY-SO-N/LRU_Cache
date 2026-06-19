@@ -74,17 +74,30 @@ Standard multithreading relies on `mutex` to protect data, but acquiring locks t
 ## 🧠 Architecture Diagram
 
 ```mermaid
-graph TD
-    Worker[Worker Threads] -->|PUT / GET Requests| Inbox[Lock-Free SPSC Inbox Queue]
-    Inbox -->|Consume| CacheThread[Dedicated Cache Thread]
-    
-    subgraph Core Engine
-        CacheThread -->|Operate| HM[Flat Array Hash Map]
-        HM -->|int32_t index| MP[Contiguous Memory Pool]
+flowchart LR
+    subgraph Client [Application Layer]
+        WT[Worker Threads]
     end
+
+    subgraph Comm [Lock-Free Asynchronous Messaging]
+        Inbox[(SPSC Inbox Queue)]
+        Outbox[(SPSC Outbox Queue)]
+    end
+
+    subgraph Core [Zero-Allocation Cache Engine]
+        DT((Dedicated Thread))
+        HM{Flat Array Hash Map}
+        MP[Contiguous Memory Pool]
+        
+        DT -->|Lookup| HM
+        HM -->|int32_t index| MP
+    end
+
+    WT -->|Push Request| Inbox
+    Inbox -->|Consume| DT
     
-    CacheThread -->|Produce| Outbox[Lock-Free SPSC Outbox Queue]
-    Outbox -->|Responses| Worker
+    DT -->|Push Response| Outbox
+    Outbox -->|Poll Result| WT
 ```
 
 ---
