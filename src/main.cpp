@@ -7,13 +7,51 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+#include <cctype>
+
+// Global registry to map HFT uint64_t hashes back to their original strings for UI display
+std::unordered_map<uint64_t, std::string> g_string_registry;
+
+// Trim function to clean accidental whitespaces from user input
+void trim_string(std::string& s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }));
+    s.erase(std::find_if(s.rbegin(), s.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+    }).base(), s.end());
+}
+
+// HFT Conversion Layer: Convert string inputs to uint64_t to maintain zero-alloc core
+uint64_t to_uint64(const std::string& str)
+{
+    try {
+        uint64_t val = std::stoull(str);
+        g_string_registry[val] = str;
+        return val;
+    } catch (...) {
+        uint64_t hash_val = std::hash<std::string>{}(str);
+        g_string_registry[hash_val] = str;
+        return hash_val;
+    }
+}
+
+std::string from_uint64(uint64_t val)
+{
+    auto it = g_string_registry.find(val);
+    if (it != g_string_registry.end()) {
+        return it->second;
+    }
+    return std::to_string(val);
+}
 
 void print_banner()
 {
     std::cout << "\n";
     std::cout << "  ============================================\n";
-    std::cout << "      LRU Cache Simulator v1.0\n";
-    std::cout << "      In-Memory Key-Value Store\n";
+    std::cout << "      HFT LRU Cache Simulator v2.0\n";
+    std::cout << "      Ultra Low-Latency Key-Value Store\n";
     std::cout << "  ============================================\n";
     std::cout << "\n";
 }
@@ -29,10 +67,9 @@ void print_menu(std::size_t current_capacity)
     std::cout << "  4.  Display Cache\n";
     std::cout << "  5.  Cache Statistics\n";
     std::cout << "  6.  Clear Cache\n";
-    std::cout << "  7.  Run Benchmark\n";
-    std::cout << "  8.  Show Cache Information\n";
-    std::cout << "  9.  Reset Cache\n";
-    std::cout << "  10. Exit\n";
+    std::cout << "  7.  Show Cache Information\n";
+    std::cout << "  8.  Reset Cache\n";
+    std::cout << "  9.  Exit\n";
     std::cout << "\n";
     std::cout << "  Enter Choice : ";
 }
@@ -42,6 +79,7 @@ std::string read_line(const std::string& prompt)
     std::cout << prompt;
     std::string input;
     std::getline(std::cin, input);
+    trim_string(input);
     return input;
 }
 
@@ -50,7 +88,7 @@ int read_choice()
     std::string line;
     if (!std::getline(std::cin, line))
     {
-        return 10;
+        return 9;
     }
 
     std::istringstream stream(line);
@@ -87,22 +125,25 @@ std::size_t read_capacity()
 
 void handle_put(lru_cache& cache)
 {
-    std::string key = read_line("  Enter key   : ");
-    if (key.empty())
+    std::string key_str = read_line("  Enter key   : ");
+    if (key_str.empty())
     {
         std::cout << "  [ERROR] Key cannot be empty.\n";
         return;
     }
 
-    std::string value = read_line("  Enter value : ");
-    if (value.empty())
+    std::string val_str = read_line("  Enter value : ");
+    if (val_str.empty())
     {
         std::cout << "  [ERROR] Value cannot be empty.\n";
         return;
     }
 
+    uint64_t key = to_uint64(key_str);
+    uint64_t value = to_uint64(val_str);
+
     cache.put(key, value);
-    std::cout << "\n  [OK] Stored: " << key << " = " << value << "\n";
+    std::cout << "\n  [OK] Stored: " << key_str << " = " << val_str << "\n";
 
     if (cache.size() == cache.capacity())
     {
@@ -112,45 +153,57 @@ void handle_put(lru_cache& cache)
 
 void handle_get(lru_cache& cache)
 {
-    std::string key = read_line("  Enter key : ");
-    if (key.empty())
+    if (cache.empty()) {
+        std::cout << "\n  [INFO] Cache is currently empty. Nothing to get.\n";
+        return;
+    }
+
+    std::string key_str = read_line("  Enter key : ");
+    if (key_str.empty())
     {
         std::cout << "  [ERROR] Key cannot be empty.\n";
         return;
     }
 
+    uint64_t key = to_uint64(key_str);
     auto result = cache.get(key);
 
     std::cout << "\n";
     if (result.found)
     {
-        std::cout << "  [HIT] " << key << " = " << result.value << "\n";
-        std::cout << "  [INFO] '" << key << "' promoted to Most Recently Used\n";
+        std::cout << "  [HIT] " << key_str << " = " << from_uint64(result.value) << "\n";
+        std::cout << "  [INFO] '" << key_str << "' promoted to Most Recently Used\n";
     }
     else
     {
-        std::cout << "  [MISS] Key '" << key << "' not found in cache.\n";
+        std::cout << "  [MISS] Key '" << key_str << "' not found in cache.\n";
     }
 }
 
 void handle_remove(lru_cache& cache)
 {
-    std::string key = read_line("  Enter key to remove : ");
-    if (key.empty())
+    if (cache.empty()) {
+        std::cout << "\n  [INFO] Cache is currently empty. Nothing to remove.\n";
+        return;
+    }
+
+    std::string key_str = read_line("  Enter key to remove : ");
+    if (key_str.empty())
     {
         std::cout << "  [ERROR] Key cannot be empty.\n";
         return;
     }
 
+    uint64_t key = to_uint64(key_str);
     std::cout << "\n";
     if (cache.remove(key))
     {
-        std::cout << "  [OK] Removed '" << key << "' from cache.\n";
+        std::cout << "  [OK] Removed '" << key_str << "' from cache.\n";
         std::cout << "  [INFO] Cache size: " << cache.size() << "/" << cache.capacity() << "\n";
     }
     else
     {
-        std::cout << "  [ERROR] Key '" << key << "' not found in cache.\n";
+        std::cout << "  [ERROR] Key '" << key_str << "' not found in cache.\n";
     }
 }
 
@@ -164,7 +217,10 @@ void handle_display(const lru_cache& cache)
     }
 
     std::cout << "  ---- Cache Contents ----\n";
-    cache.display();
+    
+    // We pass a formatter to display the original strings
+    cache.display([](uint64_t val) { return from_uint64(val); });
+    
     std::cout << "  ------------------------\n";
 }
 
@@ -197,97 +253,11 @@ void handle_clear(lru_cache& cache)
     std::cout << "\n  [OK] Cleared " << old_size << " items. Cache and statistics reset.\n";
 }
 
-void handle_benchmark(const lru_cache& cache)
-{
-    std::cout << "\n";
-    std::cout << "  ==============================\n";
-    std::cout << "       Running Benchmarks\n";
-    std::cout << "  ==============================\n";
-
-    const std::size_t num_ops = 100000;
-    const std::size_t bench_capacity = cache.capacity();
-
-    std::cout << "  Capacity   : " << bench_capacity << "\n";
-    std::cout << "  Operations : " << num_ops << " per test\n";
-    std::cout << "\n";
-
-    {
-        lru_cache bench(bench_capacity);
-        auto start = std::chrono::high_resolution_clock::now();
-        for (std::size_t i = 0; i < num_ops; ++i)
-        {
-            bench.put(std::to_string(i), std::to_string(i * 10));
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        double ms = std::chrono::duration<double, std::milli>(end - start).count();
-        double ops_sec = static_cast<double>(num_ops) / (ms / 1000.0);
-        std::cout << "  PUT (new keys)      : " << ms << " ms  |  "
-                  << ops_sec << " ops/sec\n";
-    }
-
-    {
-        lru_cache bench(bench_capacity);
-        for (std::size_t i = 0; i < bench_capacity; ++i)
-        {
-            bench.put(std::to_string(i), std::to_string(i));
-        }
-        auto start = std::chrono::high_resolution_clock::now();
-        for (std::size_t i = 0; i < num_ops; ++i)
-        {
-            bench.put(std::to_string(i % bench_capacity), std::to_string(i));
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        double ms = std::chrono::duration<double, std::milli>(end - start).count();
-        double ops_sec = static_cast<double>(num_ops) / (ms / 1000.0);
-        std::cout << "  PUT (existing keys) : " << ms << " ms  |  "
-                  << ops_sec << " ops/sec\n";
-    }
-
-    {
-        lru_cache bench(bench_capacity);
-        for (std::size_t i = 0; i < bench_capacity; ++i)
-        {
-            bench.put(std::to_string(i), std::to_string(i));
-        }
-        auto start = std::chrono::high_resolution_clock::now();
-        for (std::size_t i = 0; i < num_ops; ++i)
-        {
-            bench.get(std::to_string(i % bench_capacity));
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        double ms = std::chrono::duration<double, std::milli>(end - start).count();
-        double ops_sec = static_cast<double>(num_ops) / (ms / 1000.0);
-        std::cout << "  GET (cache hits)    : " << ms << " ms  |  "
-                  << ops_sec << " ops/sec\n";
-    }
-
-    {
-        lru_cache bench(bench_capacity);
-        for (std::size_t i = 0; i < bench_capacity; ++i)
-        {
-            bench.put(std::to_string(i), std::to_string(i));
-        }
-        auto start = std::chrono::high_resolution_clock::now();
-        for (std::size_t i = 0; i < num_ops; ++i)
-        {
-            bench.get(std::to_string(bench_capacity + i));
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        double ms = std::chrono::duration<double, std::milli>(end - start).count();
-        double ops_sec = static_cast<double>(num_ops) / (ms / 1000.0);
-        std::cout << "  GET (cache misses)  : " << ms << " ms  |  "
-                  << ops_sec << " ops/sec\n";
-    }
-
-    std::cout << "\n  [OK] All operations confirm O(1) amortized time.\n";
-    std::cout << "  ==============================\n";
-}
-
 void handle_info(const lru_cache& cache)
 {
     std::cout << "\n";
     std::cout << "  ==============================\n";
-    std::cout << "       Cache Information\n";
+    std::cout << "       HFT Cache Information\n";
     std::cout << "  ==============================\n";
     std::cout << "  Capacity       : " << cache.capacity() << "\n";
     std::cout << "  Current Size   : " << cache.size() << "\n";
@@ -301,8 +271,9 @@ void handle_info(const lru_cache& cache)
     }
 
     std::cout << "\n";
-    std::cout << "  Data Structure : std::list + std::unordered_map\n";
-    std::cout << "  Complexity     : O(1) PUT, GET, REMOVE, EVICT\n";
+    std::cout << "  Data Structure : Array-Based Pool + Open Addressing Map\n";
+    std::cout << "  Allocations    : Zero Allocations at Runtime\n";
+    std::cout << "  Complexity     : Strict O(1) PUT, GET, REMOVE\n";
     std::cout << "  ==============================\n";
 }
 
@@ -323,31 +294,14 @@ int main()
 
         switch (choice)
         {
-            case 1:
-                handle_put(*cache);
-                break;
-            case 2:
-                handle_get(*cache);
-                break;
-            case 3:
-                handle_remove(*cache);
-                break;
-            case 4:
-                handle_display(*cache);
-                break;
-            case 5:
-                handle_stats(*cache);
-                break;
-            case 6:
-                handle_clear(*cache);
-                break;
-            case 7:
-                handle_benchmark(*cache);
-                break;
+            case 1: handle_put(*cache); break;
+            case 2: handle_get(*cache); break;
+            case 3: handle_remove(*cache); break;
+            case 4: handle_display(*cache); break;
+            case 5: handle_stats(*cache); break;
+            case 6: handle_clear(*cache); break;
+            case 7: handle_info(*cache); break;
             case 8:
-                handle_info(*cache);
-                break;
-            case 9:
             {
                 std::cout << "\n  Resetting cache with new capacity.\n";
                 std::size_t new_capacity = read_capacity();
@@ -355,12 +309,12 @@ int main()
                 std::cout << "  [OK] Cache reset with capacity " << new_capacity << ".\n";
                 break;
             }
-            case 10:
-                std::cout << "\n  [INFO] Thank you for using LRU Cache Simulator. Goodbye!\n\n";
+            case 9:
+                std::cout << "\n  [INFO] Exiting HFT Cache Simulator. Goodbye!\n\n";
                 running = false;
                 break;
             default:
-                std::cout << "\n  [ERROR] Invalid choice. Please enter a number between 1 and 10.\n";
+                std::cout << "\n  [ERROR] Invalid choice. Please enter a number between 1 and 9.\n";
                 break;
         }
     }

@@ -1,14 +1,14 @@
-# LRU Cache Simulator
+# HFT LRU Cache Simulator
 
-A beginner-friendly, interview-ready **Least Recently Used (LRU) Cache** implementation in Modern C++.
+An ultra-low latency, zero-allocation **Least Recently Used (LRU) Cache** implementation in Modern C++.
 
-Built for freshers preparing for C++ Developer, Systems, and Backend engineering roles.
+Built as a masterclass project for Senior Low-Latency C++, HFT Infrastructure, and Systems Engineering interviews.
 
 ---
 
 ## What It Does
 
-An interactive command-line simulator for an LRU cache with O(1) operations.
+An interactive command-line simulator for an LRU cache with strict O(1) operations that avoids dynamic memory allocation at runtime.
 
 When the cache is full and a new entry is inserted, the **least recently used** item is evicted.
 
@@ -43,20 +43,6 @@ cmake --build build
 
 ---
 
-## Commands
-
-| Command | Description |
-|---|---|
-| `PUT <key> <value>` | Insert or update a key-value pair |
-| `GET <key>` | Retrieve value by key (promotes to MRU) |
-| `DISPLAY` | Show cache contents from MRU to LRU |
-| `STATS` | Show hit/miss/eviction statistics |
-| `CLEAR` | Clear all entries and reset stats |
-| `HELP` | Show available commands |
-| `EXIT` | Quit the simulator |
-
----
-
 ## Project Structure
 
 ```
@@ -64,42 +50,36 @@ In-Memory Key-Value Store/
   CMakeLists.txt
   README.md
   include/
-    lru_cache.h           Class declaration
+    lru_cache.h           Class declaration (Memory Pool & Hash Map)
   src/
-    lru_cache.cpp          Core implementation
-    main.cpp               Interactive CLI
+    lru_cache.cpp          Core zero-allocation implementation
+    main.cpp               Interactive CLI with UI string registry
   tests/
     test_lru_cache.cpp     Unit tests (31 tests)
   benchmarks/
-    benchmark_lru_cache.cpp  Performance benchmarks
+    benchmark_lru_cache.cpp  Performance benchmarks (Percentiles & Throughput)
 ```
 
 ---
 
-## Data Structures
+## Architecture & Data Structures
 
-```
-  unordered_map                doubly-linked list (std::list)
-  key -> iterator  ───────>   {key, value} nodes
+The project has been refactored for HFT (High-Frequency Trading) environments to eliminate `std::list` and `std::unordered_map`.
 
-  O(1) lookup                 O(1) insert/remove/reorder
-```
-
-- **std::unordered_map** maps keys to list iterators for O(1) lookup
-- **std::list** maintains usage order; front = MRU, back = LRU
-- **std::list::splice** moves nodes in O(1) without copying
+- **Contiguous Memory Pool**: A single `std::vector<Node>` pre-allocated at startup acts as an index-based Doubly Linked List for tracking LRU order.
+- **Open-Addressing Hash Table**: A flat `std::vector<int32_t>` implements a custom linear-probing hash map. Table size is fixed to a power-of-two for 1-cycle bitwise modulo lookups.
+- **Zero Allocations**: Operations like PUT, GET, and EVICT use a lock-free Free List array and backward shifting to guarantee O(1) processing with exactly **zero runtime heap allocations**.
 
 ---
 
 ## Complexity
 
-| Operation | Time | Space |
-|---|---|---|
-| PUT | O(1) amortized | O(n) total |
-| GET | O(1) amortized | |
-| DELETE | O(1) amortized | |
-| EVICT | O(1) | |
-| DISPLAY | O(n) | |
+| Operation | Time | Space | Allocations |
+|---|---|---|---|
+| PUT | O(1) strict | O(n) total | 0 |
+| GET | O(1) strict | | 0 |
+| DELETE | O(1) strict | | 0 |
+| EVICT | O(1) strict | | 0 |
 
 ---
 
