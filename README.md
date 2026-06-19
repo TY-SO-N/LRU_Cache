@@ -121,6 +121,36 @@ The project includes an interactive terminal simulator to manually test the cach
 
 ---
 
+## 🔍 Algorithm Dry Run (Capacity = 3)
+
+Let's walk through how the Zero-Allocation engine manages memory using **integer indices** instead of pointers during a burst of operations.
+
+### 1. `PUT(A, 10)`
+- **Free List Pop:** Grab index `0` from the pre-allocated memory pool.
+- **Insert Node:** `nodes_[0] = {key: A, val: 10}`
+- **Hash Table:** Hash `A`, map its bucket to index `0`.
+- **LRU Order:** `[A]` (MRU=0, LRU=0)
+
+### 2. `PUT(B, 20)` & `PUT(C, 30)`
+- **Free List Pop:** Grab indices `1` and `2`.
+- **LRU Order:** `[C] -> [B] -> [A]` (MRU=2, LRU=0)
+- *Cache is now at maximum capacity (3/3).*
+
+### 3. `GET(A)` (Hit!)
+- **Hash Lookup:** Hash `A` -> instantly returns index `0`.
+- **Promote:** Unlink index `0` from the tail and relink it to the head.
+- **LRU Order:** `[A] -> [C] -> [B]` (MRU=0, LRU=1)
+- *Notice: Zero memory was allocated. Only 32-bit integers (`prev`/`next`) were swapped!*
+
+### 4. `PUT(D, 40)` (Eviction Triggered!)
+- **Evict LRU:** Identify LRU index `1` (which holds `B`).
+- **Backward Shift:** Remove `B` from the flat hash array and execute a backward shift on any collision probes to fill the hole.
+- **Reuse Memory:** We do NOT call `delete`. Index `1` is simply pushed back to the Free List.
+- **Insert New:** Pop index `1` from the Free List for `D`.
+- **LRU Order:** `[D] -> [A] -> [C]` (MRU=1, LRU=2)
+
+---
+
 ## 📜 Project Structure
 
 ```text
