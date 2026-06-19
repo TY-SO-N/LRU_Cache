@@ -9,6 +9,10 @@
 [![Windows](https://img.shields.io/badge/Windows-10%20|%2011-0078D6.svg?style=for-the-badge&logo=windows)](https://microsoft.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
+<br/>
+
+![CLI Demo Animation](./cli_demo.webp)
+
 </div>
 
 ---
