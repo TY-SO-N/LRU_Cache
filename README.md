@@ -89,93 +89,53 @@ graph TD
 
 ---
 
-## 🎓 Step-by-Step Deep Dive
+## 🎓 Step-by-Step Algorithm Dry Run
 
-Let's do an in-depth code trace of exactly what happens when elements are inserted, retrieved, and removed. We will assume a cache capacity of 3.
-
-### The Initial State (Before any insertions)
-When the `lru_cache` is constructed:
-1. **Memory Pool (`nodes_`)**: A flat array is created with exactly 3 empty nodes.
-2. **Free List**: The `free_head_` starts at index `0`. We link all nodes together via their `.next` integers: `0 -> 1 -> 2 -> -1`. This means "index 0 is free, and its next free neighbor is index 1".
-3. **Hash Table (`hash_table_`)**: Since capacity is 3, the target size is `3 * 2 = 6`. The next power of two is **8**. A flat array of 8 integers is created, all initialized to `-1` (meaning empty). The `hash_mask_` is set to `7` (binary `0111`).
-
-### Step 1: Inserting the First Element (`put(100, 999)`)
-You call `cache.put(100, 999)`.
-1. **Allocate in O(1) without `new`**: 
-   - We check `free_head_`, which is `0`. We take index `0` for our new node.
-   - We update the free list: `free_head_` becomes `nodes_[0].next`, which is `1`.
-2. **Store Data**: 
-   - `nodes_[0].key = 100`, `nodes_[0].value = 999`.
-3. **The Fast Hashing**: 
-   - The key `100` goes through the fast `splitmix64` integer hash. Let's pretend it hashes to `13429`.
-   - We find the array slot using the bitwise AND: `13429 & 7 = 5`.
-4. **Insert into Hash Table**:
-   - We check `hash_table_[5]`. It is `-1` (empty).
-   - We store our node's index there: `hash_table_[5] = 0`.
-5. **Linking as Most Recently Used (MRU)**:
-   - We call `link_node(0)`.
-   - Since the list is empty, both `head_` (MRU) and `tail_` (LRU) are set to `0`.
-   - `nodes_[0].prev = -1` and `nodes_[0].next = -1`.
-
-### Step 2: Retrieving the Element (`get(100)`)
-1. **Find**: The key `100` hashes to `13429`, masked to `5`. We look at `hash_table_[5]` and find index `0`.
-2. **Verify**: We check `nodes_[0].key == 100`. It matches! We return `999`.
-3. **Promote**: It's already the `head_`, so nothing changes. O(1) fast path!
-
-### Step 3: Removing the Element (`remove(100)`)
-1. **Find**: Hashed and mapped to index `0` in `hash_table_[5]`.
-2. **Unlink**: `unlink_node(0)` sets `head_ = -1` and `tail_ = -1` (list is empty again).
-3. **Free**: `free_node(0)` sets `nodes_[0].next = free_head_` (which is `1`). Then `free_head_` becomes `0`. The node is now back in the free pool!
-4. **Hash Array Cleanup**: `hash_table_[5]` is set to `-1`. 
-
-### Step 4: Inserting a Second Element & Linking (`put(200, 888)`)
-Let's pretend we didn't remove `100`. The cache has `[100]` at index `0`. Now we insert `200`.
-1. **Allocate**: `free_head_` is `1`. We grab index `1` for the new node. `free_head_` becomes `2`.
-2. **Store**: `nodes_[1].key = 200`, `nodes_[1].value = 888`.
-3. **Hash**: Let's pretend `200` hashes to bucket `2`. `hash_table_[2] = 1`.
-4. **The Linking Magic**: 
-   - `link_node(1)` makes index `1` the new Most Recently Used (MRU).
-   - `nodes_[1].next = head_` (which is `0`). `nodes_[1].prev = -1`.
-   - `nodes_[0].prev = 1`. (Old MRU now points back to the new MRU).
-   - `head_` is updated to `1`. `tail_` remains `0`.
-   - **Current State**: The integer list links `1 -> 0`. The MRU is index `1`, and the LRU is index `0`. No pointers were used, entirely flat memory!
-
----
-
-## 🔍 Algorithm Dry Run (Capacity = 3)
-
-Let's walk through how this engine manages memory using **integer indices** instead of pointers, ensuring zero heap allocations happen at runtime.
+Let's do an in-depth code trace of exactly what happens when elements are inserted, retrieved, and removed. We will assume a cache capacity of 3 to demonstrate how this engine manages memory using **integer indices** instead of pointers, ensuring zero heap allocations happen at runtime.
 
 ### Initial State & Data Structures
+When the `lru_cache` is constructed:
+
 | Component | Implementation | State at Startup |
 |---|---|---|
 | **Memory Pool** | `vector<Node> nodes_` | Sized to exactly `3` elements. |
 | **Hash Table** | `vector<int32_t> hash_table_` | Sized to `8` (next power of 2 >= `3*2`). Initialized to `-1` (empty). |
 | **Free List** | `int32_t free_head_` | Starts at index `0`. (Links: `0 -> 1 -> 2 -> -1`) |
 
-### 1. `PUT(A, 10)`
-- **Free List Pop:** We grab index `0` from the pre-allocated memory pool.
-- **Insert Node:** `nodes_[0] = {key: A, val: 10}`
-- **Hash Table:** Hash `A`, map its bucket to index `0`.
-- **LRU Order:** `[A]` (MRU=0, LRU=0)
+### Step 1: Inserting the First Element — `PUT(A, 10)`
+1. **Allocate without `new`:** We check `free_head_`, which is `0`. We take index `0` for our new node. The free list updates so `free_head_` becomes `nodes_[0].next`, which is `1`.
+2. **Store Data:** `nodes_[0] = {key: A, val: 10}`.
+3. **The Fast Hashing:** The key `A` goes through the fast `splitmix64` integer hash. Let's pretend it hashes to `13429`. We find the array slot using the 1-clock-cycle bitwise AND: `13429 & 7 = 5`.
+4. **Insert into Hash Table:** We check `hash_table_[5]`. It is `-1` (empty). We store our node's index there: `hash_table_[5] = 0`.
+5. **Linking as Most Recently Used (MRU):** Since the list is empty, both `head_` (MRU) and `tail_` (LRU) are set to `0`. `nodes_[0].prev = -1` and `nodes_[0].next = -1`.
+   * **Current LRU Order:** `[A]` (MRU=0, LRU=0)
 
-### 2. `PUT(B, 20)` & `PUT(C, 30)`
-- **Free List Pop:** We grab indices `1` and `2`.
-- **LRU Order:** `[C] -> [B] -> [A]` (MRU=2, LRU=0)
-- *The cache is now completely full (3/3).*
+### Step 2: Filling the Cache — `PUT(B, 20)` & `PUT(C, 30)`
+1. **Allocate:** We grab indices `1` and `2` from the pre-allocated memory pool.
+2. **Store & Hash:** `B` and `C` are hashed and their indices are placed into the `hash_table_` array.
+3. **The Linking Magic:** As `B` and `C` are inserted, they are linked to the `head_`. The old MRU's `prev` integer is updated to point back to the new MRU.
+   * **Current LRU Order:** `[C] -> [B] -> [A]` (MRU=2, LRU=0)
+   * *The cache is now completely full (3/3).*
 
-### 3. `GET(A)` (Hit!)
-- **Hash Lookup:** Hash `A` -> instantly returns index `0`.
-- **Promote:** Unlink index `0` from the tail and relink it to the head.
-- **LRU Order:** `[A] -> [C] -> [B]` (MRU=0, LRU=1)
-- *Notice: Zero memory was allocated. We just swapped 32-bit integers (`prev`/`next`)!*
+### Step 3: Retrieving an Element — `GET(A)` (Hit!)
+1. **Find:** The key `A` is hashed and masked to `5`. We instantly look at `hash_table_[5]` and find index `0`.
+2. **Verify:** We check `nodes_[0].key == A`. It matches! We return `10`.
+3. **Promote:** We unlink index `0` from the tail and relink it to the head. 
+   * **Current LRU Order:** `[A] -> [C] -> [B]` (MRU=0, LRU=1)
+   * *Notice: Zero memory was allocated. We just swapped a few 32-bit integers (`prev`/`next`)!*
 
-### 4. `PUT(D, 40)` (Eviction Triggered!)
-- **Evict LRU:** Identify LRU index `1` (which currently holds `B`).
-- **Backward Shift:** Remove `B` from the flat hash array and execute a backward shift on any collision probes to smoothly fill the hole.
-- **Reuse Memory:** We do NOT call `delete`. Index `1` is simply pushed back to the Free List.
-- **Insert New:** We pop index `1` from the Free List and overwrite it with `D`.
-- **LRU Order:** `[D] -> [A] -> [C]` (MRU=1, LRU=2)
+### Step 4: Eviction Triggered! — `PUT(D, 40)`
+1. **Evict LRU:** The cache is full, so we must delete the LRU item. We identify `tail_` index `1` (which currently holds `B`).
+2. **Backward Shift Deletion:** We remove `B` from the flat hash array. Because we use Linear Probing, we execute a backward shift on any subsequent collision probes to smoothly fill the hole, preventing the need for performance-destroying "tombstones".
+3. **Reuse Memory:** We do NOT call `delete`. Index `1` is simply pushed back to the Free List.
+4. **Insert New:** We immediately pop index `1` from the Free List and overwrite it with `D`.
+   * **Current LRU Order:** `[D] -> [A] -> [C]` (MRU=1, LRU=2)
+
+### Step 5: Removing an Element Manually — `REMOVE(A)`
+1. **Find:** Hashed and mapped to index `0`.
+2. **Unlink:** `unlink_node(0)` removes it from the linked list, bridging `D` directly to `C`.
+3. **Free:** `free_node(0)` sets `nodes_[0].next = free_head_`. Then `free_head_` becomes `0`. The node is back in the free pool!
+4. **Hash Array Cleanup:** The hash bucket is cleared and backward-shifted.
 
 ---
 
