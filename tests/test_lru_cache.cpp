@@ -176,7 +176,7 @@ void test_zero_capacity_throws()
 
 int main()
 {
-    std::cout << "=== HFT LRU Cache Unit Tests ===\n\n";
+    std::cout << "=== LRU Cache Unit Tests ===\n\n";
 
     test_basic_put_and_get();
     test_get_missing_key();

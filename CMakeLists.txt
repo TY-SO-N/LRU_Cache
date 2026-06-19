@@ -25,5 +25,12 @@ add_executable(lru_cache_benchmark
 )
 target_link_libraries(lru_cache_benchmark PRIVATE lru_cache_lib)
 
+find_package(Threads REQUIRED)
+
+add_executable(lru_cache_async_benchmark
+    benchmarks/benchmark_async_cache.cpp
+)
+target_link_libraries(lru_cache_async_benchmark PRIVATE lru_cache_lib Threads::Threads)
+
 enable_testing()
 add_test(NAME lru_cache_unit_tests COMMAND lru_cache_tests)

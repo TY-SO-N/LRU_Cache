@@ -10,7 +10,7 @@
 #include <unordered_map>
 #include <cctype>
 
-// Global registry to map HFT uint64_t hashes back to their original strings for UI display
+// Global registry to map uint64_t hashes back to their original strings for UI display
 std::unordered_map<uint64_t, std::string> g_string_registry;
 
 // Trim function to clean accidental whitespaces from user input
@@ -23,7 +23,7 @@ void trim_string(std::string& s) {
     }).base(), s.end());
 }
 
-// HFT Conversion Layer: Convert string inputs to uint64_t to maintain zero-alloc core
+// Conversion Layer: Convert string inputs to uint64_t to maintain zero-alloc core
 uint64_t to_uint64(const std::string& str)
 {
     try {
@@ -46,15 +46,6 @@ std::string from_uint64(uint64_t val)
     return std::to_string(val);
 }
 
-void print_banner()
-{
-    std::cout << "\n";
-    std::cout << "  ============================================\n";
-    std::cout << "      HFT LRU Cache Simulator v2.0\n";
-    std::cout << "      Ultra Low-Latency Key-Value Store\n";
-    std::cout << "  ============================================\n";
-    std::cout << "\n";
-}
 
 void print_menu(std::size_t current_capacity)
 {
@@ -257,7 +248,7 @@ void handle_info(const lru_cache& cache)
 {
     std::cout << "\n";
     std::cout << "  ==============================\n";
-    std::cout << "       HFT Cache Information\n";
+    std::cout << "       Cache Information\n";
     std::cout << "  ==============================\n";
     std::cout << "  Capacity       : " << cache.capacity() << "\n";
     std::cout << "  Current Size   : " << cache.size() << "\n";
@@ -279,7 +270,6 @@ void handle_info(const lru_cache& cache)
 
 int main()
 {
-    print_banner();
 
     std::size_t capacity = read_capacity();
     auto cache = std::make_unique<lru_cache>(capacity);
@@ -310,7 +300,7 @@ int main()
                 break;
             }
             case 9:
-                std::cout << "\n  [INFO] Exiting HFT Cache Simulator. Goodbye!\n\n";
+                std::cout << "\n  [INFO] Exiting Cache Simulator. Goodbye!\n\n";
                 running = false;
                 break;
             default:

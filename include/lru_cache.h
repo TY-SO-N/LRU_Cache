@@ -69,7 +69,7 @@ private:
     std::size_t misses_ = 0;
     std::size_t evictions_ = 0;
 
-    // Internal HFT primitives
+    // Internal primitives
     int32_t find_node(key_type key) const;
     void promote(int32_t node_idx);
     void evict_lru();

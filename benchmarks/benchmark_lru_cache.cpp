@@ -293,7 +293,7 @@ int main()
 
     std::cout << "\n";
     std::cout << "  ====================================================================================================\n";
-    std::cout << "     HFT LRU Cache Benchmark Suite\n";
+    std::cout << "     LRU Cache Benchmark Suite\n";
     std::cout << "  ====================================================================================================\n";
     std::cout << "\n";
     std::cout << "  Cache capacity : " << cache_capacity << "\n";

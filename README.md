@@ -2,7 +2,7 @@
   
 # 🚀 Ultra-Low Latency LRU Cache Simulator
 
-**A Zero-Allocation, HFT-Optimized Least Recently Used (LRU) Cache in Modern C++**
+**A Zero-Allocation, Highly-Optimized Least Recently Used (LRU) Cache in Modern C++**
 
 [![C++17](https://img.shields.io/badge/C++-17-blue.svg?style=for-the-badge&logo=c%2B%2B)](https://isocpp.org/)
 [![CMake](https://img.shields.io/badge/CMake-3.20+-green.svg?style=for-the-badge&logo=cmake)](https://cmake.org/)
@@ -17,11 +17,17 @@
 
 ## 📖 What is this project?
 
-This project is an interactive command-line simulator for an **LRU (Least Recently Used) Cache**, built entirely from scratch. 
+This project is an interactive command-line simulator for an **LRU (Least Recently Used) Cache**, built entirely from scratch in C++17. 
+
+**Key Technical Achievements:**
+* **Zero-Allocation Core:** Engineered a cache engine scaling to 1,000,000 concurrent nodes, completely eliminating runtime heap allocations to prevent unpredictable latency spikes.
+* **Hardware Sympathy:** Architected a pointerless linked list using strict 32-byte node alignment, packing exactly 2 elements per 64-byte CPU cache line to maximize L1/L2 hits for $O(1)$ access.
+* **Algorithmic Optimization:** Implemented a flat hash map with linear probing and a $\le$0.5 load factor constraint, utilizing bitwise modulo optimizations to reduce bucket resolution to 1 clock cycle.
+* **Lock-Free Concurrency:** Designed an asynchronous multi-threading layer using custom-built Lock-Free Single-Producer Single-Consumer (SPSC) ring buffers, achieving **17.8 Million Ops/sec** cross-thread throughput.
 
 A "Cache" is a fast, temporary storage system. Because it has a limited size (capacity), when it gets full, it has to delete an old item to make room for a new one. An **LRU Cache** solves this by deleting the item that hasn't been used for the longest amount of time.
 
-While building an LRU Cache is a common LeetCode problem, **this project goes much further.** It is designed specifically for **High-Frequency Trading (HFT)** environments where systems must respond in nanoseconds. To achieve this, we had to throw away standard C++ tools and build highly specialized, hardware-sympathetic data structures.
+While building an LRU Cache is a common algorithm problem, **this project goes much further.** It is designed specifically for ultra low-latency environments where systems must respond in nanoseconds. To achieve this, we had to throw away standard C++ tools and build highly specialized, hardware-sympathetic data structures.
 
 ---
 
@@ -34,7 +40,7 @@ A standard LRU cache uses a `std::unordered_map` for fast lookups and a `std::li
 
 ---
 
-## ⚡ How we achieved HFT speeds (The Concepts)
+## ⚡ How we achieved ultra-low latency speeds (The Concepts)
 
 To hit nanosecond latencies, we applied the following advanced engineering concepts:
 
@@ -60,24 +66,30 @@ We force our hash table to always have a capacity that is a strict power of two 
 ### 6. Cache Line Alignment
 Modern x86 CPUs load memory in 64-byte chunks called "Cache Lines". If a struct is an awkward size (like 40 bytes), it might accidentally span across two different cache lines, forcing the CPU to do twice the work to read it. We used `alignas(32)` to force our `Node` structs to be exactly 32 bytes. This guarantees that exactly two nodes fit perfectly into a single 64-byte CPU cache line.
 
+### 7. Lock-Free Ring Buffers (Multithreading)
+Standard multithreading relies on `std::mutex` to protect data, but acquiring locks takes valuable microseconds and causes massive context-switching delays. To tackle multithreading, we completely isolated the cache onto a single dedicated background thread. Other threads communicate with it by passing messages through custom-built **Lock-Free Single-Producer Single-Consumer (SPSC) Ring Buffers**. We utilize strict `std::atomic` memory barriers (`acquire`/`release`) and pad our atomic counters with `alignas(64)` to prevent False Sharing (cache line bouncing) between CPU cores.
+
 ---
 
 ## 🧠 Architecture Diagram
 
 ```mermaid
 graph TD
-    UI[CLI Translation Registry] -->|uint64_t Hash| Core[Zero-Allocation Core Engine]
+    Worker[Worker Threads] -->|PUT / GET Requests| Inbox[Lock-Free SPSC Inbox Queue]
+    Inbox -->|Consume| CacheThread[Dedicated Cache Thread]
     
     subgraph Core Engine
-        HM[Flat Array Hash Map<br/>std::vector<int32_t>] -->|int32_t index| MP
-        MP[Contiguous Memory Pool<br/>std::vector<Node>] 
-        FL[Free List Array] -->|pop/push| MP
+        CacheThread -->|Operate| HM[Flat Array Hash Map]
+        HM -->|int32_t index| MP[Contiguous Memory Pool]
     end
+    
+    CacheThread -->|Produce| Outbox[Lock-Free SPSC Outbox Queue]
+    Outbox -->|Responses| Worker
 ```
 
 ---
 
-## 🎓 HFT Interview Prep: Step-by-Step Deep Dive
+## 🎓 Step-by-Step Deep Dive
 
 Let's do an in-depth code trace of exactly what happens when elements are inserted, retrieved, and removed. We will assume a cache capacity of 3.
 
@@ -94,7 +106,7 @@ You call `cache.put(100, 999)`.
    - We update the free list: `free_head_` becomes `nodes_[0].next`, which is `1`.
 2. **Store Data**: 
    - `nodes_[0].key = 100`, `nodes_[0].value = 999`.
-3. **The HFT Hashing**: 
+3. **The Fast Hashing**: 
    - The key `100` goes through the fast `splitmix64` integer hash. Let's pretend it hashes to `13429`.
    - We find the array slot using the bitwise AND: `13429 & 7 = 5`.
 4. **Insert into Hash Table**:
@@ -185,6 +197,17 @@ To verify the architecture's resilience against memory-bandwidth bottlenecks and
 
 **Stress Test Results:** Under absolute maximum duress, the zero-allocation architecture maintained **2.24 Million Operations/sec** with a raw cache-access time of exactly **349 nanoseconds**.
 
+### 🧵 Multithreading Throughput (Lock-Free)
+To test cross-thread performance, we benchmarked the asynchronous messaging system by blasting 5 Million requests across CPU cores. By eliminating `std::mutex` and relying solely on hardware-level atomic memory barriers, the isolated background thread was able to receive, process, and respond to requests at a blistering rate of **17.8 Million Operations/sec**.
+
+---
+
+## 💻 Interactive CLI Simulator
+
+The project includes an interactive terminal simulator (`lru_cache_simulator.exe`) that allows you to manually drive the cache. 
+
+While the core `lru_cache` engine only accepts `uint64_t` keys and values for maximum performance, the CLI layer implements a **String Translation Registry**. This allows you to type human-readable string keys (e.g., `put Apple 500`) into the console. The CLI automatically hashes "Apple" using `std::hash` into a `uint64_t` before passing it to the ultra-fast core engine, perfectly mimicking how real-world API front-ends interface with high-performance back-end databases.
+
 ---
 
 ## 🚀 Quick Start Guide
@@ -213,6 +236,9 @@ cmake --build build
 
 # Run the High-Resolution Benchmarks
 .\build\lru_cache_benchmark.exe
+
+# Run the Asynchronous Lock-Free Benchmark (17.8M Ops/sec)
+.\build\lru_cache_async_benchmark.exe
 ```
 
 ---
@@ -224,14 +250,17 @@ cmake --build build
  ├── 📄 CMakeLists.txt
  ├── 📄 README.md
  ├── 📁 include/
- │    └── 📄 lru_cache.h           (Memory Pool & Hash Map Declarations)
+ │    ├── 📄 lru_cache.h           (Memory Pool & Hash Map Declarations)
+ │    ├── 📄 spsc_queue.h          (Lock-Free Ring Buffer Implementation)
+ │    └── 📄 async_cache.h         (Dedicated Thread & Messaging Wrapper)
  ├── 📁 src/
  │    ├── 📄 lru_cache.cpp         (Core Zero-Allocation Implementation)
  │    └── 📄 main.cpp              (Interactive CLI & UI String Mapper)
  ├── 📁 tests/
  │    └── 📄 test_lru_cache.cpp    (Automated API and Eviction Unit Tests)
  └── 📁 benchmarks/
-      └── 📄 benchmark_lru_cache.cpp (Throughput & Latency Measuring Tool)
+      ├── 📄 benchmark_lru_cache.cpp     (Single-Threaded Latency Testing)
+      └── 📄 benchmark_async_cache.cpp   (Cross-Thread Lock-Free Throughput)
 ```
 
 ---
