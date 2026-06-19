@@ -11,8 +11,6 @@
 
 <br/>
 
-![CLI Demo Animation](./cli_demo.gif)
-
 </div>
 
 ---
