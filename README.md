@@ -75,19 +75,26 @@ Standard multithreading relies on `mutex` to protect data, but acquiring locks t
 
 ```mermaid
 flowchart LR
+    %% Custom Vibrant Color Palette
+    classDef worker fill:#2d3436,stroke:#636e72,stroke-width:2px,color:#fff
+    classDef queue fill:#e17055,stroke:#d63031,stroke-width:2px,color:#fff
+    classDef thread fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff
+    classDef hash fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
+    classDef mem fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff
+
     subgraph Client [Application Layer]
-        WT[Worker Threads]
+        WT[Worker Threads]:::worker
     end
 
     subgraph Comm [Lock-Free Asynchronous Messaging]
-        Inbox[(SPSC Inbox Queue)]
-        Outbox[(SPSC Outbox Queue)]
+        Inbox[(SPSC Inbox Queue)]:::queue
+        Outbox[(SPSC Outbox Queue)]:::queue
     end
 
     subgraph Core [Zero-Allocation Cache Engine]
-        DT((Dedicated Thread))
-        HM{Flat Array Hash Map}
-        MP[Contiguous Memory Pool]
+        DT((Dedicated Thread)):::thread
+        HM{Flat Array Hash Map}:::hash
+        MP[Contiguous Memory Pool]:::mem
         
         DT -->|Lookup| HM
         HM -->|int32_t index| MP
