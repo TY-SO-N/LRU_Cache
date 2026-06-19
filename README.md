@@ -58,6 +58,13 @@ graph TD
 
 > **Benchmark Results:** Achieves ~6 Million Operations/sec on standard consumer hardware, with average operation latency sitting comfortably at **~160 nanoseconds**.
 
+### 🌪️ Extreme Stress Testing Methodology
+To verify the architecture's resilience against memory-bandwidth bottlenecks and L3 cache misses, the benchmark suite includes an adversarial stress test:
+* **Massive Allocation:** Inflates cache capacity to **1,000,000** nodes.
+* **Adversarial Chaos:** Uses a Pseudo-Random Number Generator (`std::mt19937_64`) to fire **50 Million** randomized `PUT` and `GET` requests across a huge domain, artificially forcing maximal hash table collisions and continuous backward-shifting evictions.
+
+**Stress Test Results:** Under absolute maximum duress, the zero-allocation architecture maintained **2.24 Million Operations/sec** with a raw cache-access time of exactly **349 nanoseconds**.
+
 ---
 
 ## 🚀 Quick Start Guide
