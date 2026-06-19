@@ -145,28 +145,38 @@ When the `lru_cache` is constructed:
 5. **Linking as Most Recently Used (MRU):** Since the list is empty, both `head_` (MRU) and `tail_` (LRU) are set to `0`. `nodes_[0].prev = -1` and `nodes_[0].next = -1`.
    * **Current LRU Order:** `[A]` (MRU=0, LRU=0)
 
-### Step 2: Filling the Cache — `PUT(B, 20)` & `PUT(C, 30)`
-1. **Allocate:** We grab indices `1` and `2` from the pre-allocated memory pool.
-2. **Store & Hash:** `B` and `C` are hashed and their indices are placed into the `hash_table_` array.
-3. **The Linking Magic:** As `B` and `C` are inserted, they are linked to the `head_`. The old MRU's `prev` integer is updated to point back to the new MRU.
+### Step 2: Inserting the Second Element — `PUT(B, 20)`
+1. **Allocate without `new`:** We check `free_head_`, which is now `1`. We take index `1` for the new node. The free list updates so `free_head_` becomes `nodes_[1].next`, which is `2`.
+2. **Store Data:** `nodes_[1] = {key: B, val: 20}`.
+3. **The Fast Hashing:** Let's pretend `B` hashes to `8422`. Using the bitwise AND: `8422 & 7 = 6`.
+4. **Insert into Hash Table:** We check `hash_table_[6]`. It is `-1` (empty). We store our node's index there: `hash_table_[6] = 1`.
+5. **The Linking Magic:** Index `1` becomes the new Most Recently Used (MRU). `nodes_[1].next = head_` (which is `0`). `nodes_[0].prev` is updated to point back to `1`. `head_` becomes `1`, while `tail_` remains `0`.
+   * **Current LRU Order:** `[B] -> [A]` (MRU=1, LRU=0)
+
+### Step 3: Filling the Cache — `PUT(C, 30)`
+1. **Allocate without `new`:** We check `free_head_`, which is now `2`. We take index `2` for the new node. `free_head_` becomes `-1` (meaning the memory pool is now empty).
+2. **Store Data:** `nodes_[2] = {key: C, val: 30}`.
+3. **The Fast Hashing:** Let's pretend `C` hashes to `4091`. Bitwise AND: `4091 & 7 = 3`.
+4. **Insert into Hash Table:** We check `hash_table_[3]`. It is `-1` (empty). We store our node's index there: `hash_table_[3] = 2`.
+5. **The Linking Magic:** Index `2` becomes the new MRU. `nodes_[2].next` points to the old head (`1`). `nodes_[1].prev` updates to `2`. `head_` is updated to `2`. 
    * **Current LRU Order:** `[C] -> [B] -> [A]` (MRU=2, LRU=0)
    * *The cache is now completely full (3/3).*
 
-### Step 3: Retrieving an Element — `GET(A)` (Hit!)
+### Step 4: Retrieving an Element — `GET(A)` (Hit!)
 1. **Find:** The key `A` is hashed and masked to `5`. We instantly look at `hash_table_[5]` and find index `0`.
 2. **Verify:** We check `nodes_[0].key == A`. It matches! We return `10`.
 3. **Promote:** We unlink index `0` from the tail and relink it to the head. 
    * **Current LRU Order:** `[A] -> [C] -> [B]` (MRU=0, LRU=1)
    * *Notice: Zero memory was allocated. We just swapped a few 32-bit integers (`prev`/`next`)!*
 
-### Step 4: Eviction Triggered! — `PUT(D, 40)`
+### Step 5: Eviction Triggered! — `PUT(D, 40)`
 1. **Evict LRU:** The cache is full, so we must delete the LRU item. We identify `tail_` index `1` (which currently holds `B`).
 2. **Backward Shift Deletion:** We remove `B` from the flat hash array. Because we use Linear Probing, we execute a backward shift on any subsequent collision probes to smoothly fill the hole, preventing the need for performance-destroying "tombstones".
 3. **Reuse Memory:** We do NOT call `delete`. Index `1` is simply pushed back to the Free List.
 4. **Insert New:** We immediately pop index `1` from the Free List and overwrite it with `D`.
    * **Current LRU Order:** `[D] -> [A] -> [C]` (MRU=1, LRU=2)
 
-### Step 5: Removing an Element Manually — `REMOVE(A)`
+### Step 6: Removing an Element Manually — `REMOVE(A)`
 1. **Find:** Hashed and mapped to index `0`.
 2. **Unlink:** `unlink_node(0)` removes it from the linked list, bridging `D` directly to `C`.
 3. **Free:** `free_node(0)` sets `nodes_[0].next = free_head_`. Then `free_head_` becomes `0`. The node is back in the free pool!
