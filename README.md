@@ -11,7 +11,7 @@
 
 <br/>
 
-![CLI Demo Animation](./cli_demo.webp)
+![CLI Demo Animation](./cli_demo.gif)
 
 </div>
 
