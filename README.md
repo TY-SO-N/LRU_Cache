@@ -95,16 +95,17 @@ flowchart LR
         DT((Dedicated Thread)):::thread
         HM{Flat Array Hash Map}:::hash
         MP[Contiguous Memory Pool]:::mem
-        
-        DT -->|Lookup| HM
-        HM -->|int32_t index| MP
     end
 
-    WT -->|Push Request| Inbox
-    Inbox -->|Consume| DT
+    WT -->|1. Push Request| Inbox
+    Inbox -->|2. Consume| DT
     
-    DT -->|Push Response| Outbox
-    Outbox -->|Poll Result| WT
+    DT -->|3. Probe Array| HM
+    HM -.->|4. Returns int32_t index| DT
+    DT -->|5. O/1 Memory Access| MP
+    
+    DT -->|6. Push Response| Outbox
+    Outbox -->|7. Poll Result| WT
 ```
 
 ---
