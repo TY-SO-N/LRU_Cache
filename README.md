@@ -89,6 +89,28 @@ graph TD
 
 ---
 
+## 💡 System Design Architecture (Q&A)
+
+To fully understand the engineering decisions behind this architecture, here are the detailed explanations of the trade-offs and optimizations:
+
+### Q1: Why not use `unordered_map` and `list`?
+Two main reasons: Heap Allocations and CPU Cache Misses. A standard `list` calls `new` every time an item is added. Asking the OS for memory takes a massive, unpredictable amount of time (context switching). Furthermore, `list` uses pointers, which scatters data randomly across RAM. When the CPU tries to read it, it gets a Cache Miss. This flat-array approach keeps everything mathematically predictable and strictly loaded in the L1/L2 CPU cache.
+
+### Q2: How are hash collisions handled without Chaining?
+Standard maps use 'Chaining' (hanging a linked list off a bucket). Again, this uses pointers and ruins CPU cache locality. This engine uses **Linear Probing**. If a bucket is full, we just check the very next bucket in the array. Because modern CPUs automatically pre-fetch adjacent array slots into the L1 cache, Linear Probing is incredibly fast.
+
+### Q3: How do we prevent "Tombstone" clutter?
+Most open-addressing maps put a fake 'Tombstone' node to mark a deleted item. Over time, tombstones clutter the map and ruin lookup performance. We solved this by implementing a **Backward-Shift Algorithm**. When an item is deleted, we physically slide the subsequent collision elements backward to perfectly fill the hole. This keeps the array 100% dense forever.
+
+### Q4: How do you map a huge hash down to an array index in 1 clock cycle?
+Normally, you use the modulo operator (`hash % capacity`). However, hardware division (`DIV`) is one of the slowest instructions on a CPU, taking up to 15-20 clock cycles. We forced the hash table capacity to always be a strict power of 2. This allows us to replace modulo with a **Bitwise AND mask** (`hash & (capacity - 1)`), which executes in exactly **1 clock cycle**.
+
+### Q5: Why isolate the cache on a background thread instead of using `mutex` locks?
+A `mutex` or read-write lock forces threads to sleep if there's contention. Waking a sleeping thread takes roughly 2,000 nanoseconds, but our cache operations only take 160 nanoseconds! The lock becomes a massive bottleneck. 
+Instead, we used a lock-free architecture. We isolated the cache on one dedicated background thread. Other threads push requests into a lock-free Single-Producer Single-Consumer (SPSC) ring buffer. Zero locks, zero sleeping threads, maximum throughput.
+
+---
+
 ## 🎓 Step-by-Step Algorithm Dry Run
 
 Let's do an in-depth code trace of exactly what happens when elements are inserted, retrieved, and removed. We will assume a cache capacity of 3 to demonstrate how this engine manages memory using **integer indices** instead of pointers, ensuring zero heap allocations happen at runtime.
