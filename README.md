@@ -125,6 +125,13 @@ The project includes an interactive terminal simulator to manually test the cach
 
 Let's walk through how the Zero-Allocation engine manages memory using **integer indices** instead of pointers during a burst of operations.
 
+### Initial State & Data Structures
+| Component | Implementation | State at Startup |
+|---|---|---|
+| **Memory Pool** | `std::vector<Node> nodes_` | Sized to `3` elements. |
+| **Hash Table** | `std::vector<int32_t> hash_table_` | Sized to `8` (next power of 2 >= `3*2`). Initialized to `-1`. |
+| **Free List** | `int32_t free_head_` | `0` (Links: `0 -> 1 -> 2 -> -1`) |
+
 ### 1. `PUT(A, 10)`
 - **Free List Pop:** Grab index `0` from the pre-allocated memory pool.
 - **Insert Node:** `nodes_[0] = {key: A, val: 10}`
