@@ -140,5 +140,3 @@ The project includes an interactive terminal simulator to manually test the cach
 
 ---
 
-## 🤝 License
-This project is open-source and intended for educational and interview preparation purposes.
