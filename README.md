@@ -184,4 +184,4 @@ cmake --build build
 ---
 
 ## 🤝 License
-This project is open-source and intended for educational and interview preparation purposes.
+This project is open-source and intended for educational purposes.
