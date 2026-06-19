@@ -6,6 +6,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <random>
 
 struct bench_result
 {
@@ -195,6 +196,55 @@ bench_result benchmark_mixed_workload(std::size_t cache_capacity, std::size_t nu
     return r;
 }
 
+bench_result benchmark_extreme_stress_test(std::size_t cache_capacity, std::size_t num_ops)
+{
+    lru_cache cache(cache_capacity);
+    std::vector<double> latencies(num_ops);
+
+    std::mt19937_64 rng(1337);
+    std::uniform_int_distribution<uint64_t> dist(0, cache_capacity * 10);
+    std::uniform_int_distribution<int> op_dist(0, 100);
+
+    for (std::size_t i = 0; i < cache_capacity; ++i) {
+        cache.put(i, i);
+    }
+
+    auto global_start = std::chrono::high_resolution_clock::now();
+    double total_op_time_ns = 0;
+
+    for (std::size_t i = 0; i < num_ops; ++i)
+    {
+        uint64_t key = dist(rng);
+        int op = op_dist(rng);
+
+        auto start = std::chrono::high_resolution_clock::now();
+        if (op < 50) {
+            cache.put(key, key);
+        } else {
+            cache.get(key);
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        
+        double op_ns = std::chrono::duration<double, std::nano>(end - start).count();
+        latencies[i] = op_ns;
+        total_op_time_ns += op_ns;
+    }
+
+    auto global_end = std::chrono::high_resolution_clock::now();
+    double ms = std::chrono::duration<double, std::milli>(global_end - global_start).count();
+
+    bench_result r{
+        "EXTREME STRESS TEST",
+        num_ops,
+        ms, // Total time includes PRNG overhead
+        static_cast<double>(num_ops) / (ms / 1000.0), // Ops/sec includes overhead
+        total_op_time_ns / static_cast<double>(num_ops), // Pure average latency without overhead
+        0, 0, 0
+    };
+    calculate_percentiles(latencies, r);
+    return r;
+}
+
 void print_separator()
 {
     std::cout << "  +" << std::string(26, '-')
@@ -262,6 +312,13 @@ int main()
     {
         print_result(r);
     }
+    print_separator();
+
+    std::cout << "\n  Executing Extreme Stress Test... (This may take a moment)\n";
+    const std::size_t extreme_capacity = 1000000; // 1 Million capacity
+    const std::size_t extreme_ops = 50000000;     // 50 Million ops
+    print_separator();
+    print_result(benchmark_extreme_stress_test(extreme_capacity, extreme_ops));
     print_separator();
 
     return 0;
