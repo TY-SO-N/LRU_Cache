@@ -33,9 +33,9 @@ While building an LRU Cache is a common algorithm problem, **this project goes m
 
 ## 🛑 Why not use standard C++ libraries?
 
-A standard LRU cache uses a `std::unordered_map` for fast lookups and a `std::list` to track the order of items. However, in an ultra-low latency environment, these standard libraries are dangerously slow for two reasons:
+A standard LRU cache uses a `unordered_map` for fast lookups and a `list` to track the order of items. However, in an ultra-low latency environment, these standard libraries are dangerously slow for two reasons:
 
-1. **Heap Allocation (`new` / `delete`):** Every time you add an item to a `std::list`, the system has to ask the Operating System for memory. This causes unpredictable latency spikes (context switches). 
+1. **Heap Allocation (`new` / `delete`):** Every time you add an item to a `list`, the system has to ask the Operating System for memory. This causes unpredictable latency spikes (context switches). 
 2. **CPU Cache Misses:** A standard linked list uses pointers. Pointers scatter your data randomly across the computer's RAM. When the CPU tries to read the next item, it has to wait hundreds of cycles to fetch it from RAM because it isn't sequentially loaded in the CPU's L1/L2 cache.
 
 ---
@@ -45,7 +45,7 @@ A standard LRU cache uses a `std::unordered_map` for fast lookups and a `std::li
 To hit nanosecond latencies, we applied the following advanced engineering concepts:
 
 ### 1. The Zero-Allocation Memory Pool
-Instead of asking the OS for memory every time a user types a new key, we pre-allocate one massive array (`std::vector<Node>`) the moment the program starts. This is our **Memory Pool**. 
+Instead of asking the OS for memory every time a user types a new key, we pre-allocate one massive array (`vector<Node>`) the moment the program starts. This is our **Memory Pool**. 
 Once the program is running, the words `new`, `delete`, `malloc`, and `free` are **never** used again. If we need a node, we grab an empty slot from the pool. When an item is evicted, we just mark its slot as empty again.
 
 ### 2. Array-Based Linked List (No Pointers)
@@ -53,7 +53,7 @@ Because we use a single flat array for all our nodes, we completely removed memo
 
 ### 3. Open-Addressing Hash Map (Linear Probing)
 Standard hash maps resolve collisions by creating a "chain" (a linked list hanging off the hash bucket). This destroys cache locality. 
-Instead, we use a single flat array of integers (`std::vector<int32_t>`). If two keys hash to the same bucket, we simply check the very next bucket in the array until we find an empty one. This is called **Linear Probing** and it is incredibly fast because the CPU automatically prefetches adjacent array slots.
+Instead, we use a single flat array of integers (`vector<int32_t>`). If two keys hash to the same bucket, we simply check the very next bucket in the array until we find an empty one. This is called **Linear Probing** and it is incredibly fast because the CPU automatically prefetches adjacent array slots.
 
 ### 4. Backward-Shift Deletions (No Tombstones)
 When you delete an item from a Linear Probing hash map, it creates a "hole" that breaks the collision chain. Most developers fix this by leaving a "tombstone" (a fake node marking it as deleted). However, tombstones eventually fill up the map and ruin performance. 
@@ -67,7 +67,7 @@ We force our hash table to always have a capacity that is a strict power of two 
 Modern x86 CPUs load memory in 64-byte chunks called "Cache Lines". If a struct is an awkward size (like 40 bytes), it might accidentally span across two different cache lines, forcing the CPU to do twice the work to read it. We used `alignas(32)` to force our `Node` structs to be exactly 32 bytes. This guarantees that exactly two nodes fit perfectly into a single 64-byte CPU cache line.
 
 ### 7. Lock-Free Ring Buffers (Multithreading)
-Standard multithreading relies on `std::mutex` to protect data, but acquiring locks takes valuable microseconds and causes massive context-switching delays. To tackle multithreading, we completely isolated the cache onto a single dedicated background thread. Other threads communicate with it by passing messages through custom-built **Lock-Free Single-Producer Single-Consumer (SPSC) Ring Buffers**. We utilize strict `std::atomic` memory barriers (`acquire`/`release`) and pad our atomic counters with `alignas(64)` to prevent False Sharing (cache line bouncing) between CPU cores.
+Standard multithreading relies on `mutex` to protect data, but acquiring locks takes valuable microseconds and causes massive context-switching delays. To tackle multithreading, we completely isolated the cache onto a single dedicated background thread. Other threads communicate with it by passing messages through custom-built **Lock-Free Single-Producer Single-Consumer (SPSC) Ring Buffers**. We utilize strict `atomic` memory barriers (`acquire`/`release`) and pad our atomic counters with `alignas(64)` to prevent False Sharing (cache line bouncing) between CPU cores.
 
 ---
 
@@ -149,8 +149,8 @@ Let's walk through how this engine manages memory using **integer indices** inst
 ### Initial State & Data Structures
 | Component | Implementation | State at Startup |
 |---|---|---|
-| **Memory Pool** | `std::vector<Node> nodes_` | Sized to exactly `3` elements. |
-| **Hash Table** | `std::vector<int32_t> hash_table_` | Sized to `8` (next power of 2 >= `3*2`). Initialized to `-1` (empty). |
+| **Memory Pool** | `vector<Node> nodes_` | Sized to exactly `3` elements. |
+| **Hash Table** | `vector<int32_t> hash_table_` | Sized to `8` (next power of 2 >= `3*2`). Initialized to `-1` (empty). |
 | **Free List** | `int32_t free_head_` | Starts at index `0`. (Links: `0 -> 1 -> 2 -> -1`) |
 
 ### 1. `PUT(A, 10)`
@@ -193,12 +193,12 @@ Let's walk through how this engine manages memory using **integer indices** inst
 ### 🌪️ Extreme Stress Testing Methodology
 To verify the architecture's resilience against memory-bandwidth bottlenecks and L3 cache misses, the benchmark suite includes an adversarial stress test:
 * **Massive Allocation:** Inflates cache capacity to **1,000,000** nodes.
-* **Adversarial Chaos:** Uses a Pseudo-Random Number Generator (`std::mt19937_64`) to fire **50 Million** randomized `PUT` and `GET` requests across a huge domain, artificially forcing maximal hash table collisions and continuous backward-shifting evictions.
+* **Adversarial Chaos:** Uses a Pseudo-Random Number Generator (`mt19937_64`) to fire **50 Million** randomized `PUT` and `GET` requests across a huge domain, artificially forcing maximal hash table collisions and continuous backward-shifting evictions.
 
 **Stress Test Results:** Under absolute maximum duress, the zero-allocation architecture maintained **2.24 Million Operations/sec** with a raw cache-access time of exactly **349 nanoseconds**.
 
 ### 🧵 Multithreading Throughput (Lock-Free)
-To test cross-thread performance, we benchmarked the asynchronous messaging system by blasting 5 Million requests across CPU cores. By eliminating `std::mutex` and relying solely on hardware-level atomic memory barriers, the isolated background thread was able to receive, process, and respond to requests at a blistering rate of **17.8 Million Operations/sec**.
+To test cross-thread performance, we benchmarked the asynchronous messaging system by blasting 5 Million requests across CPU cores. By eliminating `mutex` and relying solely on hardware-level atomic memory barriers, the isolated background thread was able to receive, process, and respond to requests at a blistering rate of **17.8 Million Operations/sec**.
 
 ---
 
@@ -206,7 +206,7 @@ To test cross-thread performance, we benchmarked the asynchronous messaging syst
 
 The project includes an interactive terminal simulator (`lru_cache_simulator.exe`) that allows you to manually drive the cache. 
 
-While the core `lru_cache` engine only accepts `uint64_t` keys and values for maximum performance, the CLI layer implements a **String Translation Registry**. This allows you to type human-readable string keys (e.g., `put Apple 500`) into the console. The CLI automatically hashes "Apple" using `std::hash` into a `uint64_t` before passing it to the ultra-fast core engine, perfectly mimicking how real-world API front-ends interface with high-performance back-end databases.
+While the core `lru_cache` engine only accepts `uint64_t` keys and values for maximum performance, the CLI layer implements a **String Translation Registry**. This allows you to type human-readable string keys (e.g., `put Apple 500`) into the console. The CLI automatically hashes "Apple" using `hash` into a `uint64_t` before passing it to the ultra-fast core engine, perfectly mimicking how real-world API front-ends interface with high-performance back-end databases.
 
 ---
 
