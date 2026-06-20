@@ -167,19 +167,29 @@ Let's do an in-depth code trace of exactly what happens when elements are insert
 5. **Link (MRU):** Index `0` is the only item. `head_` and `tail_` = 0.
    * *Order:* `[A]` (MRU=0, LRU=0)
 
-### Step 2: Filling the Cache — `PUT(B, 20)` & `PUT(C, 30)`
-1. **Allocate:** Take index `1` for `B`, and index `2` for `C`. `free_head_` becomes `-1` (pool is empty).
-2. **Hash & Insert:** `B` hashes to bucket `6`. `C` hashes to bucket `3`.
-3. **Link (MRU):** `C` becomes the new head (`2`), pushing `B` (`1`) and `A` (`0`) down.
+### Step 2: Inserting the Second Element — `PUT(B, 20)`
+1. **Allocate:** Check `free_head_` (`1`). Take index `1`. Free list updates to `2`.
+2. **Store Data:** `nodes_[1] = {key: B, val: 20}`.
+3. **Hash & Mask:** Key `B` hashes to bucket `6`.
+4. **Insert into Map:** `hash_table_[6] = 1`.
+5. **Link (MRU):** Index `1` becomes the new head. `nodes_[1].next` points to old head `0`. `head_` = 1.
+   * *Order:* `[B] -> [A]` (MRU=1, LRU=0)
+
+### Step 3: Filling the Cache — `PUT(C, 30)`
+1. **Allocate:** Check `free_head_` (`2`). Take index `2`. `free_head_` becomes `-1` (pool is empty).
+2. **Store Data:** `nodes_[2] = {key: C, val: 30}`.
+3. **Hash & Mask:** Key `C` hashes to bucket `3`.
+4. **Insert into Map:** `hash_table_[3] = 2`.
+5. **Link (MRU):** Index `2` becomes the new head, pushing `B` (`1`) and `A` (`0`) down.
    * *Order:* `[C] -> [B] -> [A]` (MRU=2, LRU=0)
 
-### Step 3: Retrieving an Element — `GET(A)` (Hit!)
+### Step 4: Retrieving an Element — `GET(A)` (Hit!)
 1. **Find:** `A` maps to bucket `5`. `hash_table_[5]` returns index `0`.
 2. **Promote:** We unlink index `0` from the tail and relink it to the head. 
    * *Order:* `[A] -> [C] -> [B]` (MRU=0, LRU=1)
    * *Notice: Zero memory was allocated. We just swapped 32-bit integers!*
 
-### Step 4: Eviction Triggered! — `PUT(D, 40)`
+### Step 5: Eviction Triggered! — `PUT(D, 40)`
 1. **Evict LRU:** The cache is full. We identify `tail_` index `1` (holds `B`).
 2. **Backward Shift Deletion:** We remove `B` from the flat hash array and execute a backward shift on any collision probes to fill the hole, avoiding tombstones.
 3. **Reuse Memory:** Index `1` is pushed back to the Free List, then immediately popped to store `D`.
