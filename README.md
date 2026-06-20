@@ -262,13 +262,13 @@ The project includes an interactive terminal simulator (`lru_cache_simulator.exe
 The architecture of this project is heavily inspired by industry-leading research in high-performance computing. If you are preparing for systems engineering interviews, the following materials are highly recommended:
 
 1. **Lock-Free Concurrency & False Sharing:** 
-   * Thompson, Martin. *"Single Producer Consumer Ring Buffer."* Mechanical Sympathy Blog. [mechanical-sympathy.blogspot.com](https://mechanical-sympathy.blogspot.com/2011/10/smart-batching.html)
+   * Thompson, Martin. *"Single Producer Consumer Ring Buffer."* Mechanical Sympathy. [Read Article](https://mechanical-sympathy.blogspot.com/2011/10/smart-batching.html)
 2. **Cache-Friendly Hash Tables (Open Addressing):**
-   * Kulukundis, Matt. *"Designing a Fast, Efficient, Cache-friendly Hash Table, Step by Step."* CppCon 2017. (The foundational talk behind Google's SwissTable / `absl::flat_hash_map`).
+   * Kulukundis, Matt. *"Designing a Fast, Efficient, Cache-friendly Hash Table, Step by Step."* CppCon 2017. [Watch on YouTube](https://www.youtube.com/watch?v=ncHmEUmJZf4)
 3. **Avalanche Integer Hashing:**
-   * Wang, Thomas. *"Integer Hash Function."* (Provides the mathematical foundation for the FxHash / 64-bit integer hashing used to prevent primary clustering).
+   * Wang, Thomas. *"Integer Hash Function."* (Provides the mathematical foundation for FxHash). [Read Original Manuscript](https://burtleburtle.net/bob/hash/integer.html)
 4. **Memory Ordering (`acquire`/`release`):**
-   * Williams, Anthony. *"C++ Concurrency in Action, Second Edition."* Manning Publications. (The definitive guide to `<atomic>` memory models).
+   * Williams, Anthony. *"C++ Concurrency in Action, Second Edition."* Manning Publications. [View Book](https://www.manning.com/books/c-plus-plus-concurrency-in-action-second-edition)
 
 ---
 
