@@ -112,9 +112,9 @@ A standard LRU cache uses an `unordered_map` for fast lookups and a `list` to tr
 
 ---
 
-## ⚡ The Solution: 9 Pillars of Ultra-Low Latency
+## ⚡ The Solution: The 3 Pillars of Ultra-Low Latency
 
-To hit nanosecond latencies, we abandoned the standard library and applied the following advanced engineering concepts, grouped into three core pillars:
+To hit nanosecond latencies, we abandoned the standard library and applied 9 advanced engineering concepts, logically grouped into three core pillars:
 
 ### Pillar 1: Core Data Structures
 **1. The Zero-Allocation Memory Pool**  
