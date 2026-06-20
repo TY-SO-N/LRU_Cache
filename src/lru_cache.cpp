@@ -31,10 +31,13 @@ lru_cache::lru_cache(std::size_t capacity)
 }
 
 std::size_t lru_cache::hash(key_type key) const {
-    // Fast integer hash (splitmix64 style) to avoid clustering in the open addressing table
-    uint64_t z = (key ^ (key >> 30)) * 0xbf58476d1ce4e5b9ull;
-    z = (z ^ (z >> 27)) * 0x94d049bb133111ebull;
-    return (z ^ (z >> 31)) & hash_mask_;
+    // Fast integer hash (Thomas Wang's / FxHash style) to guarantee avalanche and avoid clustering
+    key ^= key >> 33;
+    key *= 0xff51afd7ed558ccd;
+    key ^= key >> 33;
+    key *= 0xc4ceb9fe1a85ec53;
+    key ^= key >> 33;
+    return key & hash_mask_;
 }
 
 int32_t lru_cache::find_node(key_type key) const {
