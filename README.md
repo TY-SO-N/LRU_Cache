@@ -216,16 +216,16 @@ Let's do an in-depth code trace of exactly what happens when elements are insert
 | **REMOVE**| O(1) Strict      | -                | **0**                    |
 | **EVICT** | O(1) Strict      | -                | **0**                    |
 
-> **Benchmark Results:** Achieves ~6 Million Operations/sec on standard consumer hardware, with average operation latency sitting comfortably at **~160 nanoseconds**.
+> **Benchmark Results:** Achieves ~5.75 Million Operations/sec on standard consumer hardware, with average operation latency sitting comfortably at **~174 nanoseconds**.
 
 ### 🌪️ Extreme Stress Testing Methodology
 To verify the architecture's resilience against memory-bandwidth bottlenecks:
 * **Massive Allocation:** Inflates cache capacity to **1,000,000** nodes.
 * **Adversarial Chaos:** Uses `mt19937_64` to fire **50 Million** randomized requests, artificially forcing maximal hash table collisions.
-* **Result:** Under absolute maximum duress, the zero-allocation architecture maintained **2.24 Million Operations/sec**.
+* **Result:** Under absolute maximum duress, the zero-allocation architecture maintained **1.97 Million Operations/sec** (with an average latency of just 383ns).
 
 ### 🧵 Multithreading Throughput (Lock-Free)
-By eliminating `mutex` and relying solely on hardware-level atomic memory barriers, the isolated background thread is able to receive, process, and respond to requests at a blistering rate of **17.8 Million Operations/sec**.
+By eliminating `mutex` and relying solely on hardware-level atomic memory barriers, the isolated background thread is able to receive, process, and respond to requests at a blistering rate of **14.7 Million Operations/sec**.
 
 ---
 
