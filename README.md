@@ -67,7 +67,7 @@ cmake --build build
 Before diving into the code, here is a visual overview of how the system processes requests asynchronously without using a single `mutex` lock.
 
 ```mermaid
-flowchart LR
+flowchart TD
     %% Custom Vibrant Color Palette
     classDef worker fill:#2d3436,stroke:#636e72,stroke-width:2px,color:#fff
     classDef queue fill:#e17055,stroke:#d63031,stroke-width:2px,color:#fff
