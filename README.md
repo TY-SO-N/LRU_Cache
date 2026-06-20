@@ -22,7 +22,7 @@ This project is an interactive command-line simulator for an **LRU (Least Recent
 **Key Technical Achievements:**
 * **Zero-Allocation Core:** Engineered a cache engine scaling to 1,000,000 concurrent nodes, completely eliminating runtime heap allocations to prevent unpredictable latency spikes.
 * **Hardware Sympathy:** Architected a pointerless linked list using strict 32-byte node alignment, packing exactly 2 elements per 64-byte CPU cache line to maximize L1/L2 hits for $O(1)$ access.
-* **Algorithmic Optimization:** Implemented a flat hash map with linear probing and a $\le$0.5 load factor constraint, utilizing bitwise modulo optimizations to reduce bucket resolution to 1 clock cycle.
+* **Algorithmic Optimization:** Implemented a flat hash map with linear probing and a ≤ 0.5 load factor constraint, utilizing bitwise modulo optimizations to reduce bucket resolution to 1 clock cycle.
 * **Lock-Free Concurrency:** Designed an asynchronous multi-threading layer using custom-built Lock-Free Single-Producer Single-Consumer (SPSC) ring buffers, achieving **17.8 Million Ops/sec** cross-thread throughput.
 
 While building an LRU Cache is a common algorithm problem, **this project goes much further.** It is designed specifically for ultra low-latency environments where systems must respond in nanoseconds. To achieve this, we threw away standard C++ tools and built highly specialized, hardware-sympathetic data structures.
