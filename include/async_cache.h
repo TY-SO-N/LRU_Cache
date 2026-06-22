@@ -6,18 +6,24 @@
 
 #if defined(_WIN32)
 #include <windows.h>
+#include <thread>
 #else
 #include <thread>
 #include <pthread.h>
 #endif
 
-#if defined(__x86_64__) || defined(_M_X64)
-#include <immintrin.h>
-#define CPU_PAUSE() _mm_pause()
-#elif defined(_WIN32)
-#define CPU_PAUSE() YieldProcessor()
+#if defined(__GNUC__) || defined(__clang__)
+  #if defined(__i386__) || defined(__x86_64__)
+    #include <immintrin.h>
+    #define CPU_PAUSE() _mm_pause()
+  #else
+    #define CPU_PAUSE()
+  #endif
+#elif defined(_MSC_VER) || defined(_WIN32)
+  #include <windows.h>
+  #define CPU_PAUSE() YieldProcessor()
 #else
-#define CPU_PAUSE()
+  #define CPU_PAUSE()
 #endif
 
 enum class req_type {
@@ -45,19 +51,26 @@ private:
     spsc_queue<cache_request> inbox_;
     spsc_queue<cache_response> outbox_;
     std::atomic<bool> running_{true};
+    int core_id_;
+
 #if defined(_WIN32)
     HANDLE worker_{nullptr};
     static DWORD WINAPI ThreadFunc(LPVOID lpParam) {
-        // Pin worker thread to Core 0 (mask = 1) to maximize L1/L2 cache locality
-        SetThreadAffinityMask(GetCurrentThread(), 1);
-        
         auto* cache = static_cast<async_cache*>(lpParam);
+        
+        // Pin worker thread to the specified core to maximize L1/L2 cache locality
+        if (cache->core_id_ >= 0) {
+            DWORD_PTR mask = (static_cast<DWORD_PTR>(1) << cache->core_id_);
+            SetThreadAffinityMask(GetCurrentThread(), mask);
+        }
+        
         cache->worker_loop();
         return 0;
     }
 #else
     std::thread worker_;
     static void set_thread_affinity(std::thread& th, int core_id) {
+        if (core_id < 0) return;
 #if defined(__linux__)
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -100,13 +113,27 @@ private:
     }
 
 public:
-    async_cache(std::size_t cache_capacity, std::size_t queue_capacity)
+    async_cache(std::size_t cache_capacity, std::size_t queue_capacity, int core_id = -1)
         : cache_(cache_capacity), inbox_(queue_capacity), outbox_(queue_capacity) {
+        
+        if (core_id == -1) {
+#if defined(_WIN32)
+            SYSTEM_INFO sysinfo;
+            GetSystemInfo(&sysinfo);
+            unsigned int hardware_cores = sysinfo.dwNumberOfProcessors;
+#else
+            unsigned int hardware_cores = std::thread::hardware_concurrency();
+#endif
+            core_id_ = (hardware_cores > 0) ? (hardware_cores - 1) : 0;
+        } else {
+            core_id_ = core_id;
+        }
+
 #if defined(_WIN32)
         worker_ = CreateThread(NULL, 0, ThreadFunc, this, 0, NULL);
 #else
         worker_ = std::thread(&async_cache::worker_loop, this);
-        set_thread_affinity(worker_, 0); // Pin to Core 0
+        set_thread_affinity(worker_, core_id_);
 #endif
     }
 

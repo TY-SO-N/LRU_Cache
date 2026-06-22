@@ -58,9 +58,8 @@ void print_menu(std::size_t current_capacity)
     std::cout << "  4.  Display Cache\n";
     std::cout << "  5.  Cache Statistics\n";
     std::cout << "  6.  Clear Cache\n";
-    std::cout << "  7.  Show Cache Information\n";
-    std::cout << "  8.  Reset Cache\n";
-    std::cout << "  9.  Exit\n";
+    std::cout << "  7.  Reset Cache\n";
+    std::cout << "  8.  Exit\n";
     std::cout << "\n";
     std::cout << "  Enter Choice : ";
 }
@@ -79,7 +78,7 @@ int read_choice()
     std::string line;
     if (!std::getline(std::cin, line))
     {
-        return 9;
+        return 8;
     }
 
     std::istringstream stream(line);
@@ -244,29 +243,7 @@ void handle_clear(lru_cache& cache)
     std::cout << "\n  [OK] Cleared " << old_size << " items. Cache and statistics reset.\n";
 }
 
-void handle_info(const lru_cache& cache)
-{
-    std::cout << "\n";
-    std::cout << "  ==============================\n";
-    std::cout << "       Cache Information\n";
-    std::cout << "  ==============================\n";
-    std::cout << "  Capacity       : " << cache.capacity() << "\n";
-    std::cout << "  Current Size   : " << cache.size() << "\n";
-    std::cout << "  Empty          : " << (cache.empty() ? "Yes" : "No") << "\n";
-    std::cout << "  Space Used     : " << cache.size() << "/" << cache.capacity();
 
-    if (cache.capacity() > 0)
-    {
-        double usage = static_cast<double>(cache.size()) / static_cast<double>(cache.capacity()) * 100.0;
-        std::cout << " (" << usage << "%)";
-    }
-
-    std::cout << "\n";
-    std::cout << "  Data Structure : Array-Based Pool + Open Addressing Map\n";
-    std::cout << "  Allocations    : Zero Allocations at Runtime\n";
-    std::cout << "  Complexity     : Strict O(1) PUT, GET, REMOVE\n";
-    std::cout << "  ==============================\n";
-}
 
 int main()
 {
@@ -290,8 +267,7 @@ int main()
             case 4: handle_display(*cache); break;
             case 5: handle_stats(*cache); break;
             case 6: handle_clear(*cache); break;
-            case 7: handle_info(*cache); break;
-            case 8:
+            case 7:
             {
                 std::cout << "\n  Resetting cache with new capacity.\n";
                 std::size_t new_capacity = read_capacity();
@@ -299,12 +275,12 @@ int main()
                 std::cout << "  [OK] Cache reset with capacity " << new_capacity << ".\n";
                 break;
             }
-            case 9:
+            case 8:
                 std::cout << "\n  [INFO] Exiting Cache Simulator. Goodbye!\n\n";
                 running = false;
                 break;
             default:
-                std::cout << "\n  [ERROR] Invalid choice. Please enter a number between 1 and 9.\n";
+                std::cout << "\n  [ERROR] Invalid choice. Please enter a number between 1 and 8.\n";
                 break;
         }
     }
