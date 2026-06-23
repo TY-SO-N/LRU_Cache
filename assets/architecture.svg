@@ -1,0 +1,383 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 750" width="100%" height="100%">
+  <defs>
+    <!-- Glow Filter for Animated Pulses -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+
+    <!-- Request Arrowhead (Orange) -->
+    <marker id="arrow-req" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#ff7b72" />
+    </marker>
+    
+    <!-- Response Arrowhead (Blue) -->
+    <marker id="arrow-res" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff" />
+    </marker>
+
+    <!-- Realistic 3D Surface Gradient -->
+    <linearGradient id="surface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#21262d" />
+      <stop offset="100%" stop-color="#161b22" />
+    </linearGradient>
+
+    <!-- Premium Drop Shadow -->
+    <filter id="box-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+
+    <!-- Blueprint Grid Pattern -->
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#30363d" stroke-width="0.5" opacity="0.4" />
+    </pattern>
+  </defs>
+
+  <style>
+    /* Base Styles */
+    .bg { fill: #0d1117; }
+    .text { fill: #c9d1d9; font-family: 'Segoe UI', Tahoma, sans-serif; font-size: 15px; font-weight: bold; text-anchor: middle; dominant-baseline: middle; }
+    .subtext { fill: #8b949e; font-size: 12px; font-weight: normal; text-anchor: middle; }
+    .tiny { fill: #b1bac4; font-size: 10px; font-style: italic; text-anchor: middle; }
+    .path-label { font-size: 12px; font-weight: bold; font-family: 'Segoe UI', Tahoma, monospace; text-anchor: middle;}
+    
+    .box { rx: 8; ry: 8; stroke-width: 2; fill: url(#surface); filter: url(#box-shadow); transition: all 0.3s ease; }
+    .queue { rx: 20; ry: 20; }
+    .zone { fill: transparent; stroke: #30363d; stroke-dasharray: 4 4; stroke-width: 1; rx: 12; transition: all 0.3s ease; }
+    .zone-title { fill: #8b949e; font-size: 13px; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif;}
+    .poly { stroke-linejoin: round; stroke-width: 2; fill: url(#surface); filter: url(#box-shadow); transition: all 0.3s ease; }
+
+    /* Interactive Hover States */
+    .box:hover, .poly:hover { filter: drop-shadow(0px 0px 12px rgba(255, 255, 255, 0.4)); stroke: #ffffff; cursor: pointer; }
+    .zone:hover { stroke: #58a6ff; stroke-dasharray: none; fill: rgba(88, 166, 255, 0.03); }
+
+    /* Box Strokes */
+    .stroke-worker { stroke: #8b949e; }
+    .stroke-inbox { stroke: #d29922; }
+    .stroke-outbox { stroke: #d29922; }
+    .stroke-thread { stroke: #58a6ff; }
+    .stroke-hash { stroke: #3fb950; }
+    .stroke-mem { stroke: #bc8cff; }
+
+    /* Impact Glow Animations for Components */
+    @keyframes flash-hash {
+      0%, 25%, 45%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      30%, 36% { filter: drop-shadow(0px 0px 8px #3fb950); fill: url(#surface); }
+    }
+    @keyframes flash-mem {
+      0%, 55%, 75%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      63%, 69% { filter: drop-shadow(0px 0px 8px #bc8cff); fill: url(#surface); }
+    }
+    @keyframes flash-thread {
+      0%, 12%, 22%, 46%, 56%, 79%, 89%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      15%, 18%, 48%, 52%, 81%, 85% { filter: drop-shadow(0px 0px 8px #58a6ff); fill: url(#surface); }
+    }
+    @keyframes flash-worker {
+      0%, 61%, 70%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      63%, 68% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: url(#surface); }
+    }
+
+    .box-hash { animation: flash-hash 8s linear infinite; }
+    .box-mem { animation: flash-mem 8s linear infinite; }
+    .box-thread { animation: flash-thread 8s linear infinite; }
+    .box-worker { animation: flash-worker 2s linear infinite; }
+    
+    /* Text Colors */
+    .txt-worker { fill: #c9d1d9; }
+    .txt-inbox { fill: #e3b341; }
+    .txt-outbox { fill: #e3b341; }
+    .txt-thread { fill: #79c0ff; }
+    .txt-hash { fill: #56d364; }
+    .txt-mem { fill: #d2a8ff; }
+
+    /* Path Lines (Color Coded with matching markers) */
+    .path-base-req { fill: none; stroke: #ff7b72; stroke-width: 1.5; stroke-dasharray: 4 4; marker-end: url(#arrow-req); opacity: 0.6; }
+    .path-base-res { fill: none; stroke: #58a6ff; stroke-width: 1.5; stroke-dasharray: 4 4; marker-end: url(#arrow-res); opacity: 0.6; }
+    .path-pulse { fill: none; stroke-width: 4; stroke-linecap: round; }
+    
+    /* Color-Coded Pulses (Orange for Requests, Blue for Responses) */
+    .req-pulse { stroke: #ff7b72; filter: drop-shadow(0px 0px 6px #ff7b72); }
+    .res-pulse { stroke: #58a6ff; filter: drop-shadow(0px 0px 6px #58a6ff); }
+
+    /* Asynchronous Traffic Streams (Exactly 3 Packets) */
+    @keyframes stream { 0% { stroke-dashoffset: 76; } 100% { stroke-dashoffset: 0; } }
+    .pulse-stream { animation: stream 1.5s linear infinite; stroke-dasharray: 15 61; }
+
+    /* Perfect 100% CPU Utilization Loop (Fully Clamped Keyframes) - Total 6s */
+    @keyframes move2 {
+      0%, 0.09% { opacity: 0; stroke-dashoffset: 1200; }
+      0.1% { opacity: 1; stroke-dashoffset: 1200; }
+      16.6% { opacity: 1; stroke-dashoffset: 100; }
+      16.7%, 100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+    @keyframes move3 {
+      0%, 16.5% { opacity: 0; stroke-dashoffset: 1200; }
+      16.6% { opacity: 1; stroke-dashoffset: 1200; }
+      33.3% { opacity: 1; stroke-dashoffset: 100; }
+      33.4%, 100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+    @keyframes move4 {
+      0%, 33.2% { opacity: 0; stroke-dashoffset: 1200; }
+      33.3% { opacity: 1; stroke-dashoffset: 1200; }
+      50.0% { opacity: 1; stroke-dashoffset: 100; }
+      50.1%, 100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+    @keyframes move5 {
+      0%, 49.9% { opacity: 0; stroke-dashoffset: 1200; }
+      50.0% { opacity: 1; stroke-dashoffset: 1200; }
+      66.6% { opacity: 1; stroke-dashoffset: 100; }
+      66.7%, 100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+    @keyframes move6 {
+      0%, 66.5% { opacity: 0; stroke-dashoffset: 1200; }
+      66.6% { opacity: 1; stroke-dashoffset: 1200; }
+      83.3% { opacity: 1; stroke-dashoffset: 100; }
+      83.4%, 100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+    @keyframes move7 {
+      0%, 83.2% { opacity: 0; stroke-dashoffset: 1200; }
+      83.3% { opacity: 1; stroke-dashoffset: 1200; }
+      99.9% { opacity: 1; stroke-dashoffset: 100; }
+      100% { opacity: 0; stroke-dashoffset: 100; }
+    }
+
+    .pulse2 { animation: move2 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse3 { animation: move3 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse4 { animation: move4 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse5 { animation: move5 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse6 { animation: move6 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse7 { animation: move7 8s linear infinite; stroke-dasharray: 100 1000; }
+  </style>
+
+  <!-- Background & Blueprint Grid -->
+  <rect width="100%" height="100%" class="bg" />
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+  <!-- Global Title -->
+  <text x="450" y="30" class="text" style="font-size: 20px; fill: #ffffff;">Ultra-Low Latency LRU Cache Architecture</text>
+
+  <!-- Zones / Subgraphs -->
+  <!-- Application Layer Zone -->
+  <rect x="250" y="80" width="400" height="120" class="zone" />
+  <text x="450" y="100" class="zone-title" text-anchor="middle">Application Layer (Client)</text>
+  
+  <!-- Lock-Free Messaging Zone -->
+  <rect x="50" y="260" width="800" height="140" class="zone" />
+  <text x="450" y="322" class="zone-title" text-anchor="middle">Lock-Free Asynchronous</text>
+  <text x="450" y="340" class="zone-title" text-anchor="middle">Messaging</text>
+
+  <!-- Core Engine Zone -->
+  <rect x="50" y="440" width="800" height="260" class="zone" />
+  <text x="450" y="630" class="zone-title" text-anchor="middle">Zero-Allocation</text>
+  <text x="450" y="648" class="zone-title" text-anchor="middle">Core Engine</text>
+
+  <!-- Nodes / Boxes (Rendered First so lines and text draw on top) -->
+  
+  <!-- Worker Threads (Hexagon Compute Node) -->
+  <polygon points="350,140 370,110 530,110 550,140 530,170 370,170" class="poly stroke-worker box-worker" />
+  <text x="450" y="132" class="text txt-worker">Application Thread</text>
+  <text x="450" y="150" class="subtext">Translates Strings to uint64_t</text>
+
+  <!-- Inbox Queue (Open Data Pipe) -->
+  <rect x="120" y="300" width="200" height="60" fill="url(#surface)" filter="url(#box-shadow)" />
+  <path d="M 120 300 L 320 300 M 120 360 L 320 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none" />
+  <text x="220" y="322" class="text txt-inbox">SPSC Inbox Queue</text>
+  <text x="220" y="340" class="subtext">O(1) Lock-Free Ring Buffer</text>
+
+  <!-- Outbox Queue (Open Data Pipe) -->
+  <rect x="580" y="300" width="200" height="60" fill="url(#surface)" filter="url(#box-shadow)" />
+  <path d="M 580 300 L 780 300 M 580 360 L 780 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none" />
+  <text x="680" y="322" class="text txt-outbox">SPSC Outbox Queue</text>
+  <text x="680" y="340" class="subtext">O(1) Lock-Free Ring Buffer</text>
+
+  <!-- Dedicated Thread (Hexagon Compute Node) -->
+  <polygon points="345,500 365,470 535,470 555,500 535,530 365,530" class="poly stroke-thread box-thread" />
+  <text x="450" y="492" class="text txt-thread">Dedicated Cache Engine</text>
+  <text x="450" y="510" class="subtext">100% Isolated Thread Execution</text>
+
+  <!-- Hash Map (Segmented Array Grid) -->
+  <rect x="130" y="620" width="220" height="60" class="box stroke-hash box-hash" />
+  <path d="M 166 620 L 166 680 M 202 620 L 202 680 M 238 620 L 238 680 M 274 620 L 274 680 M 310 620 L 310 680" stroke="#3fb950" stroke-width="2" opacity="0.15" fill="none" />
+  <text x="240" y="642" class="text txt-hash">Flat Array Hash Map</text>
+  <text x="240" y="660" class="subtext">Linear Probing Collision Handling</text>
+
+  <!-- Memory Pool (Stacked Registers) -->
+  <rect x="550" y="620" width="220" height="60" class="box stroke-mem box-mem" />
+  <path d="M 550 640 L 770 640 M 550 660 L 770 660" stroke="#bc8cff" stroke-width="2" opacity="0.2" fill="none" />
+  <text x="660" y="642" class="text txt-mem">Contiguous Memory Pool</text>
+  <text x="660" y="660" class="subtext">Pointer-less Linked List (Indices)</text>
+
+
+  <!-- Base Paths (With Directional Arrowheads - Rendered Over Boxes) -->
+  <path class="path-base-req" d="M 170 140 L 350 140" /> <!-- External -> App -->
+  <path class="path-base-res" d="M 550 140 L 730 140" /> <!-- App -> External -->
+
+  <path class="path-base-req" d="M 410 170 L 223 300" />
+  <path class="path-base-req" d="M 223 360 L 407 470" />
+  
+  <path class="path-base-req" d="M 387 530 L 227 620" /> <!-- Forward to Hash -->
+  <path class="path-base-res" d="M 253 620 L 407 530" /> <!-- Return from Hash -->
+  
+  <path class="path-base-req" d="M 513 530 L 673 620" /> <!-- Forward to MemPool -->
+  <path class="path-base-res" d="M 647 620 L 493 530" /> <!-- Return from MemPool -->
+  
+  <path class="path-base-res" d="M 493 470 L 677 360" />
+  <path class="path-base-res" d="M 677 300 L 493 170" />
+
+  <!-- Animated Glowing Pulses (Rendered Over Lines) -->
+  <!-- Streams (Continuous Traffic) -->
+  <path class="path-pulse req-pulse pulse-stream" d="M 170 140 L 350 140" /> <!-- External -> App -->
+  <path class="path-pulse res-pulse pulse-stream" d="M 550 140 L 730 140" /> <!-- App -> External -->
+
+  <path class="path-pulse req-pulse pulse-stream" d="M 410 170 L 223 300" /> <!-- App -> Inbox -->
+  <path class="path-pulse res-pulse pulse-stream" d="M 677 300 L 493 170" /> <!-- Outbox -> App -->
+
+  <!-- Internal Single Logical Packet Flow -->
+  <path class="path-pulse req-pulse pulse2" pathLength="1000" d="M 223 360 L 407 470" /> <!-- Inbox -> Thread -->
+  <path class="path-pulse req-pulse pulse3" pathLength="1000" d="M 387 530 L 227 620" /> <!-- Thread -> Hash -->
+  
+  <path class="path-pulse res-pulse pulse4" pathLength="1000" d="M 253 620 L 407 530" /> <!-- Hash -> Thread -->
+  <path class="path-pulse req-pulse pulse5" pathLength="1000" d="M 513 530 L 673 620" /> <!-- Thread -> MemPool -->
+  
+  <path class="path-pulse res-pulse pulse6" pathLength="1000" d="M 647 620 L 493 530" /> <!-- MemPool -> Thread -->
+  <path class="path-pulse res-pulse pulse7" pathLength="1000" d="M 493 470 L 677 360" /> <!-- Thread -> Outbox -->
+
+  <!-- Path Labels (Rendered Top-Most to prevent any clipping) -->
+  <text x="160" y="135" class="path-label" style="fill: #ff7b72;" text-anchor="end">Arbitrary Data Sources</text>
+  <text x="160" y="150" class="tiny" text-anchor="end">(Client Logic, Subsystems, etc.)</text>
+
+  <text x="740" y="135" class="path-label" style="fill: #58a6ff;" text-anchor="start">Returned Results</text>
+  <text x="740" y="150" class="tiny" text-anchor="start">Cache hits / Data reads</text>
+
+  <g transform="translate(316, 235) rotate(-34.8)">
+    <text x="0" y="-15" class="path-label" style="fill: #ff7b72;">1. Push Request Stream</text>
+  </g>
+  
+  <g transform="translate(315, 415) rotate(30.8)">
+    <text x="0" y="-15" class="path-label" style="fill: #ff7b72;">2. Consume Event</text>
+  </g>
+  
+  <g transform="translate(307, 575) rotate(-29.3)">
+    <text x="0" y="-15" class="path-label" style="fill: #ff7b72;">3. Hash Probe</text>
+  </g>
+  <g transform="translate(330, 575) rotate(-30.3)">
+    <text x="0" y="15" class="path-label" style="fill: #58a6ff;">4. Returns Index</text>
+  </g>
+  
+  <g transform="translate(593, 575) rotate(29.3)">
+    <text x="0" y="-15" class="path-label" style="fill: #ff7b72;">5. O(1) Node Access</text>
+  </g>
+  <g transform="translate(570, 575) rotate(30.3)">
+    <text x="0" y="15" class="path-label" style="fill: #58a6ff;">6. R/W Data</text>
+  </g>
+  
+  <g transform="translate(585, 415) rotate(-30.8)">
+    <text x="0" y="-15" class="path-label" style="fill: #58a6ff;">7. Enqueue Result</text>
+  </g>
+  
+  <g transform="translate(585, 235) rotate(35.2)">
+    <text x="0" y="-10" class="path-label" style="fill: #58a6ff;">8. Poll Response Stream</text>
+  </g>
+
+  <!-- Animated Data Packets (SMIL Synchronized) -->
+  
+  <!-- Step 2: Inbox -> Thread -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Req(K1)
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Req(K2)
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Req(K3)
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 223 360 L 407 470" keyPoints="0;1;1" keyTimes="0;0.166;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.001;0.166;0.167;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 3: Thread -> Hash -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Hash(K1)
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Hash(K2)
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Hash(K3)
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 387 530 L 227 620" keyPoints="0;0;1;1" keyTimes="0;0.166;0.333;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.165;0.166;0.333;0.334;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 4: Hash -> Thread -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">Idx: 42
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Idx: 17
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Idx: 99
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 253 620 L 407 530" keyPoints="0;0;1;1" keyTimes="0;0.333;0.5;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.332;0.333;0.5;0.501;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 5: Thread -> MemPool -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Read[42]
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Read[17]
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Read[99]
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 513 530 L 673 620" keyPoints="0;0;1;1" keyTimes="0;0.5;0.666;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.499;0.5;0.666;0.667;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 6: MemPool -> Thread -->
+  <g opacity="0">
+    <rect x="-40" y="-35" width="80" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">{ User1 }
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">{ User2 }
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">{ User3 }
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 647 620 L 493 530" keyPoints="0;0;1;1" keyTimes="0;0.666;0.833;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.665;0.666;0.833;0.834;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 7: Thread -> Outbox -->
+  <g opacity="0">
+    <rect x="-45" y="-35" width="90" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">Res:{User1}
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Res:{User2}
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Res:{User3}
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 493 470 L 677 360" keyPoints="0;0;1" keyTimes="0;0.833;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.832;0.833;0.999;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+</svg>
