@@ -205,6 +205,12 @@ Let's do an in-depth code trace of exactly what happens when elements are insert
 **Q: How do you prevent SPSC queues from deadlocking on shutdown?**
 > SPSC queues can deadlock if the consumer thread stops reading while the producer is still spinning to push. In our `~async_cache` destructor, the drain loop intelligently discards pending `GET` requests instead of attempting to push the responses to a blocked main thread, guaranteeing a graceful, deadlock-free shutdown.
 
+**Q: Why was GCC chosen as the primary compiler for this project?**
+> While this project is fully compatible with MSVC and Clang, GCC (via MinGW) was chosen on Windows for its extremely aggressive `-O3` optimization pass, which is highly effective at loop unrolling and auto-vectorization for our flat array probing. Furthermore, it ensures strict C++17 memory model compliance and consistent hardware intrinsic support (`_mm_pause()`), guaranteeing that the lock-free semantics compile and behave identically when deployed to a bare-metal Linux environment.
+
+**Q: Why use Ninja instead of standard Makefiles or MSBuild?**
+> When tuning an ultra-low latency engine, you constantly make micro-optimizations and recompile. Standard Makefiles evaluate dependency graphs slowly. Ninja is a minimalist, low-level build system designed strictly for speed; it instantly parses dependencies and automatically parallelizes compilation across all available CPU cores by default, reducing incremental compile times to a fraction of a second and providing an immediate feedback loop.
+
 ---
 
 ## ⏱️ Performance Metrics
