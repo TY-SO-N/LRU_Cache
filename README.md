@@ -78,6 +78,12 @@ Before diving into the code, here is a visual overview of how the system process
   <img src="assets/architecture.svg" alt="Animated Ultra-Low Latency Architecture">
 </p>
 
+> **Interactive 28-Second Timeline:** The diagram above is fully animated using mathematically synchronized SMIL physics, visualizing the exact $O(1)$ lock-free data flow across 4 distinct scenarios:
+> 1. **Act 1 (0s - 7s) Cache Hit:** A `GET` request succeeding in the Hash Map and reading from the Memory Pool.
+> 2. **Act 2 (7s - 12s) Cache Miss:** An early-exit optimization where the thread hits the Hash Map, fails, and returns immediately without ever touching the Memory Pool.
+> 3. **Act 3 (12s - 19s) Insertion:** A `PUT` request successfully allocating new space in both the Hash Map and Memory Pool.
+> 4. **Act 4 (19s - 28s) Eviction:** A massive multi-trip workflow showing the engine popping the LRU from the Memory Pool, deleting the old key from the Hash Map, and then inserting the new MRU node back into both systems.
+
 
 ---
 
