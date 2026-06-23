@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LRU Cache Developer Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+<div id="init-overlay" class="init-overlay">
+    <div class="init-box">
+        <h2>System Boot Sequence</h2>
+        <p>Allocate memory pool capacity to begin.</p>
+        <input type="number" id="inp-boot-cap" placeholder="Capacity (e.g. 10)" autocomplete="off">
+        <button class="primary" onclick="bootSystem()" style="margin-top: 20px; width: 100%;">INITIALIZE ENGINE</button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="header">
+        <h1>LRU Cache Engine</h1>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-label">Capacity</span>
+                <span class="stat-val" id="st-cap">0 / 0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Hits</span>
+                <span class="stat-val log-ok" id="st-hits">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Misses</span>
+                <span class="stat-val log-err" id="st-misses">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Evictions</span>
+                <span class="stat-val log-warn" id="st-evict">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">Hit Ratio</span>
+                <span class="stat-val log-info" id="st-ratio">0.00%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-panel">
+        <div class="panel-header">
+            <span>DATA STRUCTURE VISUALIZER</span>
+        </div>
+
+        <div class="ds-visualizer">
+            <div class="hash-pane">
+                <div class="pane-title">std::unordered_map&lt;K, Node*&gt;</div>
+                <div class="hash-table" id="hash-table">
+                    <!-- hm-rows -->
+                </div>
+            </div>
+            
+            <div class="list-pane">
+                <div class="pane-title">std::list&lt;Node&gt;</div>
+                <div class="linked-list" id="linked-list">
+                    <!-- ll-nodes -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="side-panel">
+        <div class="control-panel">
+            <div class="panel-header" style="margin-bottom: 10px;">Execute Command</div>
+            
+            <div class="form-group">
+                <label>OPERATION</label>
+                <div class="op-tabs">
+                    <button id="btn-op-put" class="op-tab active" onclick="setOp('put')">PUT</button>
+                    <button id="btn-op-get" class="op-tab" onclick="setOp('get')">GET</button>
+                    <button id="btn-op-del" class="op-tab" onclick="setOp('del')">DEL</button>
+                    <button id="btn-op-sim" class="op-tab" onclick="setOp('sim')">SIM</button>
+                    <button id="btn-op-reboot" class="op-tab" onclick="showBootScreen()" style="background: rgba(248, 81, 73, 0.2); color: var(--accent-red); border-color: rgba(248, 81, 73, 0.5);">REBOOT</button>
+                </div>
+            </div>
+
+            <div class="form-group" id="fg-key">
+                <label>KEY</label>
+                <input type="text" id="inp-key" placeholder="e.g. Alpha" autocomplete="off">
+            </div>
+            
+            <div class="form-group" id="fg-val">
+                <label>VALUE</label>
+                <input type="text" id="inp-val" placeholder="e.g. 1024" autocomplete="off">
+            </div>
+
+            <div class="form-group" id="fg-sim" style="display: none;">
+                <label>NUM OPERATIONS</label>
+                <input type="number" id="inp-sim-ops" placeholder="e.g. 20" autocomplete="off">
+            </div>
+
+            <button id="btn-exec" class="primary" style="width: 100%; margin-top: 10px;" onclick="executeOp()">EXECUTE</button>
+
+            <div id="sim-playback" style="display: none; margin-top: 10px; text-align: center;">
+                <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-blue); margin-bottom: 10px;" id="sim-step-label">Step 0 / 0</div>
+                <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                    <button class="primary" style="flex: 1;" onclick="stepSim(-1)">&lt; PREV</button>
+                    <button class="primary" id="btn-play" style="flex: 1; background: var(--accent-blue);" onclick="toggleAutoPlay()">PLAY</button>
+                    <button class="primary" style="flex: 1;" onclick="stepSim(1)">NEXT &gt;</button>
+                </div>
+                <button class="danger" style="width: 100%;" onclick="exitSim()">EXIT SIM</button>
+            </div>
+        </div>
+
+        <div class="console-panel">
+            <div class="panel-header" style="margin-bottom: 10px;">System Logs</div>
+            <div class="console-output" id="console"></div>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
