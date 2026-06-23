@@ -75,7 +75,7 @@ Before diving into the code, here is a visual overview of how the system process
 
 ### Data Flow
 <p align="center">
-  <img src="assets/architecture.svg" alt="Animated Ultra-Low Latency Architecture">
+  <img src="assets/architecture.svg" alt="Animated Ultra-Low Latency Architecture" width="765" height="630">
 </p>
 
 ---
