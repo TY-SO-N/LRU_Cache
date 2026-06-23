@@ -136,7 +136,6 @@
 
   <!-- Global Title -->
   <text x="450" y="30" class="text" style="font-size: 20px; fill: #ffffff;">Ultra-Low Latency LRU Cache Architecture</text>
-  <text x="450" y="55" class="subtext">17.8 Million Ops/sec | 100% Zero-Allocation | 174ns Latency</text>
 
   <!-- Zones / Subgraphs -->
   <!-- Application Layer Zone -->
@@ -148,7 +147,7 @@
   <text x="60" y="280" class="zone-title" text-anchor="start">Lock-Free Asynchronous Messaging</text>
 
   <!-- Core Engine Zone -->
-  <rect x="50" y="440" width="800" height="275" class="zone" />
+  <rect x="50" y="440" width="800" height="260" class="zone" />
   <text x="60" y="460" class="zone-title" text-anchor="start">Zero-Allocation Core Engine</text>
 
   <!-- Nodes / Boxes (Rendered First so lines and text draw on top) -->
@@ -174,16 +173,14 @@
   <text x="450" y="510" class="subtext">100% Isolated Thread Execution</text>
 
   <!-- Hash Map -->
-  <rect x="130" y="620" width="220" height="75" class="box stroke-hash box-hash" />
+  <rect x="130" y="620" width="220" height="60" class="box stroke-hash box-hash" />
   <text x="240" y="642" class="text txt-hash">Flat Array Hash Map</text>
   <text x="240" y="660" class="subtext">Linear Probing Collision Handling</text>
-  <text x="240" y="675" class="tiny">Bitwise modulo (1 clock cycle)</text>
 
   <!-- Memory Pool -->
-  <rect x="550" y="620" width="220" height="75" class="box stroke-mem box-mem" />
+  <rect x="550" y="620" width="220" height="60" class="box stroke-mem box-mem" />
   <text x="660" y="642" class="text txt-mem">Contiguous Memory Pool</text>
   <text x="660" y="660" class="subtext">Pointer-less Linked List (Indices)</text>
-  <text x="660" y="675" class="tiny">alignas(32) • 2 per L1 Cache Line</text>
 
 
   <!-- Base Paths (With Directional Arrowheads - Rendered Over Boxes) -->
