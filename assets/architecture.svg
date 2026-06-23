@@ -178,14 +178,6 @@
   
   <!-- Worker Threads (Hexagon Compute Node) -->
   <polygon points="350,140 370,110 530,110 550,140 530,170 370,170" class="poly stroke-worker box-worker" />
-  <g transform="translate(365, 120) scale(0.35)" opacity="0.08" stroke="#ffffff" fill="none" stroke-width="5" stroke-linecap="round">
-    <rect x="0" y="0" width="100" height="100" rx="15" />
-    <rect x="25" y="25" width="50" height="50" rx="8" />
-    <path d="M -15 25 L 0 25 M -15 50 L 0 50 M -15 75 L 0 75" />
-    <path d="M 100 25 L 115 25 M 100 50 L 115 50 M 100 75 L 115 75" />
-    <path d="M 25 -15 L 25 0 M 50 -15 L 50 0 M 75 -15 L 75 0" />
-    <path d="M 25 100 L 25 115 M 50 100 L 50 115 M 75 100 L 75 115" />
-  </g>
   <text x="450" y="132" class="text txt-worker">Application Thread</text>
   <text x="450" y="150" class="subtext">Translates Strings to uint64_t</text>
 
@@ -203,14 +195,6 @@
 
   <!-- Dedicated Thread (Hexagon Compute Node) -->
   <polygon points="345,500 365,470 535,470 555,500 535,530 365,530" class="poly stroke-thread box-thread" />
-  <g transform="translate(365, 480) scale(0.35)" opacity="0.08" stroke="#ffffff" fill="none" stroke-width="5" stroke-linecap="round">
-    <rect x="0" y="0" width="100" height="100" rx="15" />
-    <rect x="25" y="25" width="50" height="50" rx="8" />
-    <path d="M -15 25 L 0 25 M -15 50 L 0 50 M -15 75 L 0 75" />
-    <path d="M 100 25 L 115 25 M 100 50 L 115 50 M 100 75 L 115 75" />
-    <path d="M 25 -15 L 25 0 M 50 -15 L 50 0 M 75 -15 L 75 0" />
-    <path d="M 25 100 L 25 115 M 50 100 L 50 115 M 75 100 L 75 115" />
-  </g>
   <text x="450" y="492" class="text txt-thread">Dedicated Cache Engine</text>
   <text x="450" y="510" class="subtext">100% Isolated Thread Execution</text>
 
