@@ -31,17 +31,17 @@ While building an LRU Cache is a common algorithm problem, **this project goes m
 
 ## 🚀 Quick Start Guide
 
+### 1. Requirements
+* C++17 Compatible Compiler (MSVC, GCC, Clang)
+* CMake 3.20+
+* Ninja Build System (optional but recommended)
+
 ### Why GCC and Ninja?
 **Q: Why was GCC chosen as the primary compiler for this project?**
 > While this project is fully compatible with MSVC and Clang, GCC (via MinGW) was chosen on Windows for its extremely aggressive `-O3` optimization pass, which is highly effective at loop unrolling and auto-vectorization for our flat array probing. Furthermore, it ensures strict C++17 memory model compliance and consistent hardware intrinsic support (`_mm_pause()`), guaranteeing that the lock-free semantics compile and behave identically when deployed to a bare-metal Linux environment.
 
 **Q: Why use Ninja instead of standard Makefiles or MSBuild?**
 > When tuning an ultra-low latency engine, you constantly make micro-optimizations and recompile. Standard Makefiles evaluate dependency graphs slowly. Ninja is a minimalist, low-level build system designed strictly for speed; it instantly parses dependencies and automatically parallelizes compilation across all available CPU cores by default, reducing incremental compile times to a fraction of a second and providing an immediate feedback loop.
-
-### 1. Requirements
-* C++17 Compatible Compiler (MSVC, GCC, Clang)
-* CMake 3.20+
-* Ninja Build System (optional but recommended)
 
 ### 2. Build Instructions
 ```powershell
