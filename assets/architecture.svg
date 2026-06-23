@@ -18,6 +18,17 @@
     <marker id="arrow-res" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
       <path d="M 0 0 L 10 5 L 0 10 z" fill="#58a6ff" />
     </marker>
+
+    <!-- Realistic 3D Surface Gradient -->
+    <linearGradient id="surface" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#21262d" />
+      <stop offset="100%" stop-color="#161b22" />
+    </linearGradient>
+
+    <!-- Premium Drop Shadow -->
+    <filter id="box-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
   </defs>
 
   <style>
@@ -28,10 +39,11 @@
     .tiny { fill: #b1bac4; font-size: 10px; font-style: italic; text-anchor: middle; }
     .path-label { font-size: 12px; font-weight: bold; font-family: 'Segoe UI', Tahoma, monospace; text-anchor: middle;}
     
-    .box { rx: 8; ry: 8; stroke-width: 2; fill: #161b22; }
+    .box { rx: 8; ry: 8; stroke-width: 2; fill: url(#surface); filter: url(#box-shadow); }
     .queue { rx: 20; ry: 20; }
     .zone { fill: transparent; stroke: #30363d; stroke-dasharray: 4 4; stroke-width: 1; rx: 12; }
     .zone-title { fill: #8b949e; font-size: 13px; font-weight: bold; font-family: 'Segoe UI', Tahoma, sans-serif;}
+    .poly { stroke-linejoin: round; stroke-width: 2; fill: url(#surface); filter: url(#box-shadow); }
 
     /* Box Strokes */
     .stroke-worker { stroke: #8b949e; }
@@ -43,20 +55,20 @@
 
     /* Impact Glow Animations for Components */
     @keyframes flash-hash {
-      0%, 25%, 45%, 100% { filter: none; fill: #161b22; }
-      30%, 36% { filter: drop-shadow(0px 0px 8px #3fb950); fill: #161b22; }
+      0%, 25%, 45%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      30%, 36% { filter: drop-shadow(0px 0px 8px #3fb950); fill: url(#surface); }
     }
     @keyframes flash-mem {
-      0%, 55%, 75%, 100% { filter: none; fill: #161b22; }
-      63%, 69% { filter: drop-shadow(0px 0px 8px #bc8cff); fill: #161b22; }
+      0%, 55%, 75%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      63%, 69% { filter: drop-shadow(0px 0px 8px #bc8cff); fill: url(#surface); }
     }
     @keyframes flash-thread {
-      0%, 12%, 22%, 46%, 56%, 79%, 89%, 100% { filter: none; fill: #161b22; }
-      15%, 18%, 48%, 52%, 81%, 85% { filter: drop-shadow(0px 0px 8px #58a6ff); fill: #161b22; }
+      0%, 12%, 22%, 46%, 56%, 79%, 89%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      15%, 18%, 48%, 52%, 81%, 85% { filter: drop-shadow(0px 0px 8px #58a6ff); fill: url(#surface); }
     }
     @keyframes flash-worker {
-      0%, 100% { filter: none; fill: #161b22; }
-      50% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: #161b22; }
+      0%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      50% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: url(#surface); }
     }
 
     .box-hash { animation: flash-hash 6s linear infinite; }
@@ -140,45 +152,51 @@
   <!-- Zones / Subgraphs -->
   <!-- Application Layer Zone -->
   <rect x="250" y="80" width="400" height="120" class="zone" />
-  <text x="260" y="100" class="zone-title" text-anchor="start">Application Layer (Client)</text>
+  <text x="450" y="100" class="zone-title" text-anchor="middle">Application Layer (Client)</text>
   
   <!-- Lock-Free Messaging Zone -->
   <rect x="50" y="260" width="800" height="140" class="zone" />
-  <text x="60" y="280" class="zone-title" text-anchor="start">Lock-Free Asynchronous Messaging</text>
+  <text x="450" y="322" class="zone-title" text-anchor="middle">Lock-Free Asynchronous</text>
+  <text x="450" y="340" class="zone-title" text-anchor="middle">Messaging</text>
 
   <!-- Core Engine Zone -->
   <rect x="50" y="440" width="800" height="260" class="zone" />
-  <text x="60" y="460" class="zone-title" text-anchor="start">Zero-Allocation Core Engine</text>
+  <text x="450" y="630" class="zone-title" text-anchor="middle">Zero-Allocation</text>
+  <text x="450" y="648" class="zone-title" text-anchor="middle">Core Engine</text>
 
   <!-- Nodes / Boxes (Rendered First so lines and text draw on top) -->
   
-  <!-- Worker Threads -->
-  <rect x="350" y="110" width="200" height="60" class="box stroke-worker box-worker" />
+  <!-- Worker Threads (Hexagon Compute Node) -->
+  <polygon points="350,140 370,110 530,110 550,140 530,170 370,170" class="poly stroke-worker box-worker" />
   <text x="450" y="132" class="text txt-worker">Application Thread</text>
   <text x="450" y="150" class="subtext">Translates Strings to uint64_t</text>
 
-  <!-- Inbox Queue -->
-  <rect x="120" y="300" width="200" height="60" class="box queue stroke-inbox" />
+  <!-- Inbox Queue (Open Data Pipe) -->
+  <rect x="120" y="300" width="200" height="60" fill="url(#surface)" filter="url(#box-shadow)" />
+  <path d="M 120 300 L 320 300 M 120 360 L 320 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none" />
   <text x="220" y="322" class="text txt-inbox">SPSC Inbox Queue</text>
   <text x="220" y="340" class="subtext">O(1) Lock-Free Ring Buffer</text>
 
-  <!-- Outbox Queue -->
-  <rect x="580" y="300" width="200" height="60" class="box queue stroke-outbox" />
+  <!-- Outbox Queue (Open Data Pipe) -->
+  <rect x="580" y="300" width="200" height="60" fill="url(#surface)" filter="url(#box-shadow)" />
+  <path d="M 580 300 L 780 300 M 580 360 L 780 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none" />
   <text x="680" y="322" class="text txt-outbox">SPSC Outbox Queue</text>
   <text x="680" y="340" class="subtext">O(1) Lock-Free Ring Buffer</text>
 
-  <!-- Dedicated Thread -->
-  <rect x="350" y="470" width="200" height="60" class="box stroke-thread box-thread" />
+  <!-- Dedicated Thread (Hexagon Compute Node) -->
+  <polygon points="345,500 365,470 535,470 555,500 535,530 365,530" class="poly stroke-thread box-thread" />
   <text x="450" y="492" class="text txt-thread">Dedicated Cache Engine</text>
   <text x="450" y="510" class="subtext">100% Isolated Thread Execution</text>
 
-  <!-- Hash Map -->
+  <!-- Hash Map (Segmented Array Grid) -->
   <rect x="130" y="620" width="220" height="60" class="box stroke-hash box-hash" />
+  <path d="M 166 620 L 166 680 M 202 620 L 202 680 M 238 620 L 238 680 M 274 620 L 274 680 M 310 620 L 310 680" stroke="#3fb950" stroke-width="2" opacity="0.15" fill="none" />
   <text x="240" y="642" class="text txt-hash">Flat Array Hash Map</text>
   <text x="240" y="660" class="subtext">Linear Probing Collision Handling</text>
 
-  <!-- Memory Pool -->
+  <!-- Memory Pool (Stacked Registers) -->
   <rect x="550" y="620" width="220" height="60" class="box stroke-mem box-mem" />
+  <path d="M 550 640 L 770 640 M 550 660 L 770 660" stroke="#bc8cff" stroke-width="2" opacity="0.2" fill="none" />
   <text x="660" y="642" class="text txt-mem">Contiguous Memory Pool</text>
   <text x="660" y="660" class="subtext">Pointer-less Linked List (Indices)</text>
 
