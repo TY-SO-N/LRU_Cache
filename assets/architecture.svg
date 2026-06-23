@@ -101,7 +101,7 @@
   <text x="450" y="630" class="zone-title" text-anchor="middle">Zero-Allocation Core Engine</text>
 
   <polygon points="350,140 370,110 530,110 550,140 530,170 370,170" class="poly stroke-worker box-worker">
-    <animate attributeName="filter" values="url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0357;0.25;0.2857;0.4286;0.4643;0.6786;0.7143;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" /><animate attributeName="stroke" values="#ffffff;#8b949e;#ffffff;#8b949e;#ffffff;#8b949e;#ffffff;#8b949e;#8b949e" keyTimes="0.0;0.0357;0.25;0.2857;0.4286;0.4643;0.6786;0.7143;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    <animate attributeName="filter" values="url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0357;0.25;0.2857;0.4286;0.4643;0.6786;0.7143;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </polygon>
   <text x="450" y="132" class="text txt-worker">Application Thread</text>
   <text x="450" y="150" class="subtext">Translates Strings to uint64_t</text>
@@ -110,7 +110,7 @@
     <animate attributeName="filter" values="url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0357;0.25;0.2857;0.4286;0.4643;0.6786;0.7143;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </rect>
   <path d="M 120 300 L 320 300 M 120 360 L 320 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none">
-    <animate attributeName="stroke" values="#ffffff;#d29922;#ffffff;#d29922;#ffffff;#d29922;#ffffff;#d29922;#d29922" keyTimes="0.0;0.0357;0.25;0.2857;0.4286;0.4643;0.6786;0.7143;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    
   </path>
   <text x="220" y="322" class="text txt-inbox">SPSC Inbox Queue</text>
   <text x="220" y="340" class="subtext">O(1) Lock-Free Ring Buffer</text>
@@ -119,24 +119,24 @@
     <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow)" keyTimes="0.0;0.2143;0.25;0.3929;0.4286;0.6429;0.6786;0.9643;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </rect>
   <path d="M 580 300 L 780 300 M 580 360 L 780 360" stroke="#d29922" stroke-width="2" stroke-linecap="round" fill="none">
-    <animate attributeName="stroke" values="#d29922;#ffffff;#d29922;#ffffff;#d29922;#ffffff;#d29922;#ffffff;#d29922" keyTimes="0.0;0.2143;0.25;0.3929;0.4286;0.6429;0.6786;0.9643;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    
   </path>
   <text x="680" y="322" class="text txt-outbox">SPSC Outbox Queue</text>
 
   <polygon points="345,500 365,470 535,470 555,500 535,530 365,530" class="poly stroke-thread box-thread">
-    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0357;0.0714;0.1071;0.1429;0.1786;0.2143;0.2857;0.3214;0.3571;0.3929;0.4643;0.5;0.5357;0.5714;0.6071;0.6429;0.7143;0.75;0.7857;0.8214;0.8571;0.8929;0.9286;0.9643;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" /><animate attributeName="stroke" values="#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#ffffff;#58a6ff;#58a6ff" keyTimes="0.0;0.0357;0.0714;0.1071;0.1429;0.1786;0.2143;0.2857;0.3214;0.3571;0.3929;0.4643;0.5;0.5357;0.5714;0.6071;0.6429;0.7143;0.75;0.7857;0.8214;0.8571;0.8929;0.9286;0.9643;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0357;0.0714;0.1071;0.1429;0.1786;0.2143;0.2857;0.3214;0.3571;0.3929;0.4643;0.5;0.5357;0.5714;0.6071;0.6429;0.7143;0.75;0.7857;0.8214;0.8571;0.8929;0.9286;0.9643;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </polygon>
   <text x="450" y="492" class="text txt-thread">Dedicated Cache Engine</text>
   <text x="450" y="510" class="subtext">100% Isolated Thread Execution</text>
 
   <rect x="130" y="620" width="220" height="60" class="box stroke-hash box-hash">
-    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0714;0.1071;0.3214;0.3571;0.5;0.5357;0.8214;0.8571;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" /><animate attributeName="stroke" values="#3fb950;#ffffff;#3fb950;#ffffff;#3fb950;#ffffff;#3fb950;#ffffff;#3fb950;#3fb950" keyTimes="0.0;0.0714;0.1071;0.3214;0.3571;0.5;0.5357;0.8214;0.8571;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.0714;0.1071;0.3214;0.3571;0.5;0.5357;0.8214;0.8571;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </rect>
   <path d="M 166 620 L 166 680 M 202 620 L 202 680 M 238 620 L 238 680 M 274 620 L 274 680 M 310 620 L 310 680" stroke="#3fb950" stroke-width="2" opacity="0.15" fill="none" />
   <text x="240" y="642" class="text txt-hash">Flat Array Hash Map</text>
 
   <rect x="550" y="620" width="220" height="60" class="box stroke-mem box-mem">
-    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.1429;0.1786;0.5714;0.6071;0.75;0.7857;0.8929;0.9286;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" /><animate attributeName="stroke" values="#bc8cff;#ffffff;#bc8cff;#ffffff;#bc8cff;#ffffff;#bc8cff;#ffffff;#bc8cff;#bc8cff" keyTimes="0.0;0.1429;0.1786;0.5714;0.6071;0.75;0.7857;0.8929;0.9286;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
+    <animate attributeName="filter" values="url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#glow);url(#box-shadow);url(#box-shadow)" keyTimes="0.0;0.1429;0.1786;0.5714;0.6071;0.75;0.7857;0.8929;0.9286;1.0" calcMode="discrete" dur="28s" repeatCount="indefinite" />
   </rect>
   <path d="M 550 640 L 770 640 M 550 660 L 770 660" stroke="#bc8cff" stroke-width="2" opacity="0.2" fill="none" />
   <text x="660" y="642" class="text txt-mem">Contiguous Memory Pool</text>
