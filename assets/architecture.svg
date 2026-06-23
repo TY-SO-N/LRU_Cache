@@ -80,10 +80,10 @@
       63%, 68% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: url(#surface); }
     }
 
-    .box-hash { animation: flash-hash 6s linear infinite; }
-    .box-mem { animation: flash-mem 6s linear infinite; }
-    .box-thread { animation: flash-thread 6s linear infinite; }
-    .box-worker { animation: flash-worker 1.5s linear infinite; }
+    .box-hash { animation: flash-hash 8s linear infinite; }
+    .box-mem { animation: flash-mem 8s linear infinite; }
+    .box-thread { animation: flash-thread 8s linear infinite; }
+    .box-worker { animation: flash-worker 2s linear infinite; }
     
     /* Text Colors */
     .txt-worker { fill: #c9d1d9; }
@@ -144,12 +144,12 @@
       100% { opacity: 0; stroke-dashoffset: 100; }
     }
 
-    .pulse2 { animation: move2 6s linear infinite; stroke-dasharray: 100 1000; }
-    .pulse3 { animation: move3 6s linear infinite; stroke-dasharray: 100 1000; }
-    .pulse4 { animation: move4 6s linear infinite; stroke-dasharray: 100 1000; }
-    .pulse5 { animation: move5 6s linear infinite; stroke-dasharray: 100 1000; }
-    .pulse6 { animation: move6 6s linear infinite; stroke-dasharray: 100 1000; }
-    .pulse7 { animation: move7 6s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse2 { animation: move2 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse3 { animation: move3 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse4 { animation: move4 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse5 { animation: move5 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse6 { animation: move6 8s linear infinite; stroke-dasharray: 100 1000; }
+    .pulse7 { animation: move7 8s linear infinite; stroke-dasharray: 100 1000; }
   </style>
 
   <!-- Background & Blueprint Grid -->
@@ -280,6 +280,104 @@
   
   <g transform="translate(585, 235) rotate(35.2)">
     <text x="0" y="-10" class="path-label" style="fill: #58a6ff;">8. Poll Response Stream</text>
+  </g>
+
+  <!-- Animated Data Packets (SMIL Synchronized) -->
+  
+  <!-- Step 2: Inbox -> Thread -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Req(K1)
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Req(K2)
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Req(K3)
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 223 360 L 407 470" keyPoints="0;1;1" keyTimes="0;0.166;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;0.001;0.166;0.167;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 3: Thread -> Hash -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Hash(K1)
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Hash(K2)
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Hash(K3)
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 387 530 L 227 620" keyPoints="0;0;1;1" keyTimes="0;0.166;0.333;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.165;0.166;0.333;0.334;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 4: Hash -> Thread -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">Idx: 42
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Idx: 17
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Idx: 99
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 253 620 L 407 530" keyPoints="0;0;1;1" keyTimes="0;0.333;0.5;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.332;0.333;0.5;0.501;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 5: Thread -> MemPool -->
+  <g opacity="0">
+    <rect x="-35" y="-35" width="70" height="22" rx="4" fill="#0d1117" stroke="#ff7b72" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;">Read[42]
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Read[17]
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #ff7b72; font-size: 11px;" opacity="0">Read[99]
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 513 530 L 673 620" keyPoints="0;0;1;1" keyTimes="0;0.5;0.666;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.499;0.5;0.666;0.667;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 6: MemPool -> Thread -->
+  <g opacity="0">
+    <rect x="-40" y="-35" width="80" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">{ User1 }
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">{ User2 }
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">{ User3 }
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 647 620 L 493 530" keyPoints="0;0;1;1" keyTimes="0;0.666;0.833;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;0.665;0.666;0.833;0.834;1" dur="8s" repeatCount="indefinite" />
+  </g>
+
+  <!-- Step 7: Thread -> Outbox -->
+  <g opacity="0">
+    <rect x="-45" y="-35" width="90" height="22" rx="4" fill="#0d1117" stroke="#58a6ff" stroke-width="1.5" />
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;">Res:{User1}
+      <animate attributeName="opacity" values="1;0;0;1" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Res:{User2}
+      <animate attributeName="opacity" values="0;1;0;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <text x="0" y="-24" class="path-label" style="fill: #58a6ff; font-size: 11px;" opacity="0">Res:{User3}
+      <animate attributeName="opacity" values="0;0;1;0" keyTimes="0;0.333;0.666;1" calcMode="discrete" dur="24s" repeatCount="indefinite" />
+    </text>
+    <animateMotion dur="8s" repeatCount="indefinite" path="M 493 470 L 677 360" keyPoints="0;0;1" keyTimes="0;0.833;1" calcMode="linear" />
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.832;0.833;0.999;1" dur="8s" repeatCount="indefinite" />
   </g>
 
 </svg>
