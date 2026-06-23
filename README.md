@@ -78,41 +78,6 @@ Before diving into the code, here is a visual overview of how the system process
   <img src="assets/architecture.svg" alt="Animated Ultra-Low Latency Architecture">
 </p>
 
-### Static Component Relationship
-```mermaid
-flowchart TD
-    %% Custom Vibrant Color Palette
-    classDef worker fill:#2d3436,stroke:#636e72,stroke-width:2px,color:#fff
-    classDef queue fill:#e17055,stroke:#d63031,stroke-width:2px,color:#fff
-    classDef thread fill:#6c5ce7,stroke:#a29bfe,stroke-width:2px,color:#fff
-    classDef hash fill:#0984e3,stroke:#74b9ff,stroke-width:2px,color:#fff
-    classDef mem fill:#00b894,stroke:#55efc4,stroke-width:2px,color:#fff
-
-    subgraph Client [Application Layer]
-        WT[Worker Threads]:::worker
-    end
-
-    subgraph Comm [Lock-Free Asynchronous Messaging]
-        Inbox[(SPSC Inbox Queue)]:::queue
-        Outbox[(SPSC Outbox Queue)]:::queue
-    end
-
-    subgraph Core [Zero-Allocation Cache Engine]
-        DT((Dedicated Thread)):::thread
-        HM{Flat Array Hash Map}:::hash
-        MP[Contiguous Memory Pool]:::mem
-    end
-
-    WT -->|1. Push Request| Inbox
-    Inbox -->|2. Consume| DT
-    
-    DT -->|3. Probe Array| HM
-    HM -.->|4. Returns int32_t index| DT
-    DT -->|5. O/1 Memory Access| MP
-    
-    DT -->|6. Push Response| Outbox
-    Outbox -->|7. Poll Result| WT
-```
 
 ---
 

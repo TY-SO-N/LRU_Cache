@@ -76,14 +76,14 @@
       15%, 18%, 48%, 52%, 81%, 85% { filter: drop-shadow(0px 0px 8px #58a6ff); fill: url(#surface); }
     }
     @keyframes flash-worker {
-      0%, 100% { filter: url(#box-shadow); fill: url(#surface); }
-      50% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: url(#surface); }
+      0%, 61%, 70%, 100% { filter: url(#box-shadow); fill: url(#surface); }
+      63%, 68% { filter: drop-shadow(0px 0px 8px #ff7b72); fill: url(#surface); }
     }
 
     .box-hash { animation: flash-hash 6s linear infinite; }
     .box-mem { animation: flash-mem 6s linear infinite; }
     .box-thread { animation: flash-thread 6s linear infinite; }
-    .box-worker { animation: flash-worker 3s ease-in-out infinite; }
+    .box-worker { animation: flash-worker 1.5s linear infinite; }
     
     /* Text Colors */
     .txt-worker { fill: #c9d1d9; }
