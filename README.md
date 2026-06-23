@@ -73,7 +73,7 @@ cmake --build build
 
 Before diving into the code, here is a visual overview of how the system processes requests asynchronously without using a single `mutex` lock.
 
-### High-Fidelity Animated Data Flow
+### Data Flow
 <p align="center">
   <img src="assets/architecture.svg" alt="Animated Ultra-Low Latency Architecture">
 </p>
